@@ -1,8 +1,8 @@
 name: Scheduled deployment - pod 4
 
 on:
-  schedule:
-    - cron: "00 14,02 * * *"  # Every 12 hours - needs to be all done before OWASP scans start from 03:00
+  # schedule:
+  #   - cron: "00 14,02 * * *"  # Every 12 hours - needs to be all done before OWASP scans start from 03:00
 
   workflow_dispatch:
 

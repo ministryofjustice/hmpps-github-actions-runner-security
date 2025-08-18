@@ -46,7 +46,7 @@ jobs:
         uses: ./.github/actions/docker-build
         id: build
         with:
-          project: hmpps-github-actions-runner
+          project: hmpps-github-actions-runner-security
           push: ${{ env.push }}
           version: 'latest-prod'
           gh_auth_token: ${{ steps.generate-github-app-tokens.outputs.access-token }}
