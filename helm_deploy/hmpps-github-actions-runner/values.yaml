@@ -1,10 +1,10 @@
 ---
 generic-service:
-  nameOverride: hmpps-github-actions-runner-pod
+  nameOverride: hmpps-github-actions-runner-security-pod
   replicaCount: 1 # Individual runners so that a different API key can be used for each
 
   image:
-    repository: ghcr.io/ministryofjustice/hmpps-github-actions-runner
+    repository: ghcr.io/ministryofjustice/hmpps-github-actions-runner-security
     tag: xxx    # override at deployment time
     port: 8080
 
@@ -35,4 +35,4 @@ generic-service:
 
   envFrom:
     - secretRef:
-        name: hmpps-github-actions-runner
+        name: hmpps-github-actions-runner-security

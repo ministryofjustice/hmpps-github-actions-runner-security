@@ -10,7 +10,7 @@ For teams wishing to **use these runners in your own pipelines**, the documentat
 
 ### Repo secrets
 
-- GH_PRIVATE_KEY - A private key for a Github App that has rights to create runners in the destination repository
+- GH_APP_PRIVATE_KEY - A private key for a Github App that has rights to create runners in the destination repository
 
 ### Environment secrets (populated by Cloud Platforms terraform)
 
