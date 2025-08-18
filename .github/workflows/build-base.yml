@@ -1,0 +1,48 @@
+name: Build the base Docker image
+on:
+  push:
+    paths:
+      - Dockerfile.base
+      - .github/workflows/build-base.yml
+    branches:
+      - develop
+      - "base/**"
+
+  workflow_call:
+
+  workflow_dispatch:
+
+  schedule:
+    - cron: "15 00 * * *" # Build every day at 00:15 ready for the scheduled deployments
+
+jobs:
+  build-base:
+    name: Build and push the base Docker image
+    runs-on: ubuntu-latest
+    steps:
+      - name: Copy Repo Files
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
+      - name: Get GitHub organization or user
+        run: echo 'ORG='$(echo $(dirname ${GITHUB_REPOSITORY}) | awk '{print tolower($0)}') >> $GITHUB_ENV
+      - name: Set version
+        id: version
+        run: |
+          version=$(date '+%Y-%m-%d').${{ github.run_number }}.$(echo ${{ github.sha }} | cut -c1-7)
+          echo "version=$version" | tee -a "$GITHUB_OUTPUT"
+      - name: GitHub app JWT and installation access token generation
+        uses: jamestrousdale/github-app-jwt-token@0.1.4
+        id: generate-github-app-tokens
+        with:
+          app-id: ${{ vars.GH_APP_ID }}
+          private-key: ${{ secrets.GH_APP_PRIVATE_KEY }}
+        
+      - name: Build Docker images
+        uses: ./.github/actions/docker-build
+        id: build
+        with:
+          project: hmpps-github-actions-runner-base
+          push: True
+          dockerfile: Dockerfile.base
+          version: ${{ steps.version.outputs.version }}
+          gh_auth_token: ${{ steps.generate-github-app-tokens.outputs.access-token }}
+

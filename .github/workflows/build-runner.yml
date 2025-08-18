@@ -1,0 +1,53 @@
+name: Build the runner Docker image
+
+on:
+  workflow_call:
+    inputs:
+      push:
+        type: boolean
+        default: false
+      force-deploy:
+        type: boolean
+        default: false
+  workflow_dispatch:
+    inputs:
+      push:
+        description: Push images
+        type: boolean
+        default: false
+
+env:
+  push: ${{ inputs.push }}
+  ghcr_token: ${{ secrets.GHCR_TOKEN}}
+
+jobs:
+  build-runner:
+    permissions:
+      contents: read
+      pull-requests: write
+      deployments: write
+      packages: write
+    name: Docker build
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Update Dockerfile FROM org
+        run: sed -i.bak "s/FROM.*/FROM ghcr.io\/ministryofjustice\/hmpps-github-actions-runner-base:latest/" Dockerfile
+
+      - name: GitHub app JWT and installation access token generation
+        uses: jamestrousdale/github-app-jwt-token@0.1.4
+        id: generate-github-app-tokens
+        with:
+          app-id: ${{ vars.GH_APP_ID }}
+          private-key: ${{ secrets.GH_APP_PRIVATE_KEY }}
+        
+      - name: Build Docker images
+        uses: ./.github/actions/docker-build
+        id: build
+        with:
+          project: hmpps-github-actions-runner
+          push: ${{ env.push }}
+          version: 'latest-prod'
+          gh_auth_token: ${{ steps.generate-github-app-tokens.outputs.access-token }}
+

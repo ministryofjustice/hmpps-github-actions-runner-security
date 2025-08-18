@@ -1,0 +1,45 @@
+name: Run the slack notification for various things
+description: This sends a slack notification
+
+inputs:
+  slack_channel:
+    description: 'The channel to send the slack message to'
+    required: true
+  slack_bot_token:
+    description: 'The slack bot token'
+    required: true
+  pull_request_number:
+    description: The number of the pull request
+    required: true
+runs:
+  using: composite
+  steps:
+  - name: Slack - Send a message
+    id: slack-message
+    uses: slackapi/slack-github-action@91efab103c0de0a537f72a35f6b8cda0ee76bf0a # v2.1.1
+    with:
+      method: chat.postMessage
+      token: ${{ inputs.slack_bot_token }}
+      payload: |
+        "channel": "${{ inputs.slack_channel }}",
+        "text": "*GITHUB ACTIONS RUNNER*: upgrade PR has been created for *${{ github.event.repository.name }}*",
+          "blocks": [
+            {
+              "type": "section",
+              "fields": [
+                {
+                    "type": "mrkdwn",
+                    "text": "*Github Actions Runner PR - new runner available*"
+                }
+              ]
+            },
+            {
+              "type": "section",
+              "fields": [
+                {
+                  "type": "mrkdwn",
+                  "text": "*Pull Request:*\n<${{ github.server_url }}/${{ github.repository }}/pull/${{ inputs.pull_request_number }}/files|${{ github.event.repository.name }}/pull/${{ inputs.pull_request_number }}>"
+                }
+              ]
+            }
+          ]

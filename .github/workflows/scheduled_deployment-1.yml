@@ -1,0 +1,38 @@
+name: Scheduled deployment - pod 1
+
+on:
+  schedule:
+    - cron: "30 00,12 * * *"  # Every 12 hours - needs to be all done before OWASP scans start from 03:00
+
+  workflow_dispatch:
+
+jobs:
+  # Build a fresh runner for the first pod
+  build-runner:
+    permissions:
+      contents: read
+      pull-requests: write
+      deployments: write
+      packages: write
+    name: Build
+    uses: ./.github/workflows/build-runner.yml
+    with:
+      push: true
+    secrets: inherit
+  
+  # Then deploy to production
+  deploy_to_prod:
+    name: Deploy to prod
+    uses: ./.github/workflows/deploy.yml
+    needs:
+      - build-runner
+    with:
+      environment: production
+      version: 'latest-prod'
+      pod_number: 1
+    secrets: inherit
+    permissions:
+      contents: read
+      deployments: write
+      pull-requests: write
+

@@ -1,0 +1,27 @@
+name: New PR (actions/runner check)
+
+on:
+  pull_request:
+    types: [opened, reopened]
+
+jobs:
+  renovate_pr:
+    runs-on: [ ubuntu-latest ]
+    permissions:
+      contents: write
+    steps:
+    - name: Check out code
+      uses: actions/checkout@v5
+    - name: Get PR details
+      id: get_pr_details
+      run: |
+        echo "title=$(jq -r .pull_request.title < $GITHUB_EVENT_PATH)" >> $GITHUB_OUTPUT
+        echo "number=$(jq -r .pull_request.number < $GITHUB_EVENT_PATH)" >> $GITHUB_OUTPUT
+    - name: Run action if PR title contains 'actions/runner'
+      if: contains(steps.get_pr_details.outputs.title, 'actions/runner')
+      uses: ./.github/actions/runner-slack-notification
+      with:
+        slack_channel: ${{ vars.NOTIFICATIONS_SLACK_CHANNEL }}
+        slack_bot_token: ${{ secrets.HMPPS_SRE_SLACK_BOT_TOKEN }}
+        pull_request_number:  ${{ steps.get_pr_details.outputs.number }}
+

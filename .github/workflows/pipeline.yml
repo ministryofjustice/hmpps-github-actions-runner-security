@@ -1,0 +1,51 @@
+name: Build -> Deploy pipeline
+
+on:
+  push:
+    branches:
+      - 'main'
+      - 'fix/**'
+      - 'feat/**'
+      - 'feature/**'
+
+jobs:
+  build-base:
+    permissions:
+      contents: read
+      pull-requests: write
+      deployments: write
+      packages: write
+    name: Build
+    uses: ./.github/workflows/build-base.yml
+    secrets: inherit 
+
+  build-runner:
+    permissions:
+      contents: read
+      pull-requests: write
+      deployments: write
+      packages: write
+    name: Build
+    uses: ./.github/workflows/build-runner.yml
+    needs:
+      - build-base
+    with:
+      push: true
+    secrets: inherit 
+    
+  # Deploy the pods individually so they can use separate API keys
+  deploy_to_prod_pod_1:
+    name: Deploy to prod
+    uses: ./.github/workflows/deploy.yml
+    needs:
+      - build-runner
+    with:
+      environment: production
+      version: 'latest-prod'
+      pod_number: 1
+    secrets: inherit
+    permissions:
+      contents: read
+      deployments: write
+      pull-requests: write
+

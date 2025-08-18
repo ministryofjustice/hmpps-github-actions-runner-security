@@ -1,0 +1,38 @@
+---
+generic-service:
+  nameOverride: hmpps-github-actions-runner-pod
+  replicaCount: 1 # Individual runners so that a different API key can be used for each
+
+  image:
+    repository: ghcr.io/ministryofjustice/hmpps-github-actions-runner
+    tag: xxx    # override at deployment time
+    port: 8080
+
+  ingress:
+    enabled: false
+
+  # Due to a bug cant disable/override the sub chart.
+  # https://github.com/helm/helm/pull/12162
+  # Looks like it might be fixed, so...
+
+  livenessProbe: null
+
+  readinessProbe:
+    httpGet: null
+    exec:
+      command:
+        - cat
+        - /tmp/runner.ready
+    initialDelaySeconds: 10
+    periodSeconds: 10
+    timeoutSeconds: 5
+    failureThreshold: 5
+
+  # Pre-existing kubernetes secrets to load as environment variables in the deployment.
+  # namespace_secrets:
+  #   [name of kubernetes secret]:
+  #     [name of environment variable as seen by app]: [key of kubernetes secret to load]
+
+  envFrom:
+    - secretRef:
+        name: hmpps-github-actions-runner
