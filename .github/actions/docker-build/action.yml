@@ -27,7 +27,7 @@ runs:
         password: ${{ github.token }}
 
     - name: Build Docker images
-      uses: docker/build-push-action@v6
+      uses: docker/build-push-action@v6.18.0
       with:
         cache-from: type=gha
         cache-to: type=gha,mode=max
