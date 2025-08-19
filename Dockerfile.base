@@ -7,7 +7,7 @@ LABEL org.opencontainers.image.vendor="Ministry of Justice" \
 
 ARG DUMB_INIT_VERSION="1.2.2"
 # TODO: remove git PPA and skopeo customizations for focal when focal hits EOL 
-ENV GIT_LFS_VERSION="3.2.0"
+ENV GIT_LFS_VERSION="3.7.0"
 ENV VULNZ_VERSION="9.0.0"
 
 ENV LANG=en_US.UTF-8
