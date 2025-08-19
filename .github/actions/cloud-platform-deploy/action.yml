@@ -59,7 +59,7 @@ runs:
         brew install helm
         yq -i ".appVersion = \"${{ inputs.version }}\"" "helm_deploy/${{ github.event.repository.name }}/Chart.yaml"
         helm dependency update "helm_deploy/${{ github.event.repository.name }}"
-        exec helm upgrade '${{ github.event.repository.name }}-pod${{ inputs.pod_number }}' 'helm_deploy/${{ github.event.repository.name }}' \
+        exec helm upgrade '${{ github.event.repository.name }}' 'helm_deploy/${{ github.event.repository.name }}' \
           --atomic \
           --history-max 10 \
           --force \

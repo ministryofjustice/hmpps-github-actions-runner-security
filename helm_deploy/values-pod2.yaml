@@ -1,7 +1,7 @@
 ---
 # Per environment values which override defaults in hmpps-github-actions-runner/values.yaml
 generic-service:
-  nameOverride: hmpps-github-actions-runner-security-pod-2
+  nameOverride: pod-2
 
 generic-prometheus-alerts:
   alertSeverity: hmpps-sre-alerts
