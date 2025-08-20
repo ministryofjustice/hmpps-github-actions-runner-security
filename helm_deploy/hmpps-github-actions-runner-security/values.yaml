@@ -1,6 +1,6 @@
 ---
 generic-service:
-  nameOverride: hmpps-github-actions-runner-security-pod
+  nameOverride: hmpps-github-actions-runner-security
   replicaCount: 1 # Individual runners so that a different API key can be used for each
 
   image:
