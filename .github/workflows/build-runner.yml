@@ -30,7 +30,7 @@ jobs:
     name: Docker build
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4.3.0
+      - uses: actions/checkout@v5
 
       - name: Update Dockerfile FROM org
         run: sed -i.bak "s/FROM.*/FROM ghcr.io\/ministryofjustice\/hmpps-github-actions-runner-base:latest/" Dockerfile
