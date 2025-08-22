@@ -1,0 +1,25 @@
+name: Remove offline runners
+
+on:
+  workflow_call:
+
+jobs:
+  remove-offline-runners:
+    runs-on: ubuntu-latest
+    name: Remove offline runners
+    permissions:
+      contents: read
+    steps:
+    - uses: actions/checkout@v5
+    - name: GitHub app JWT and installation access token generation
+      uses: jamestrousdale/github-app-jwt-token@0.1.4
+      id: generate-github-app-tokens
+      with:
+        app-id: ${{ vars.GH_APP_ID }}
+        private-key: ${{ secrets.GH_APP_PRIVATE_KEY }}
+    - name: runner cleanup
+      uses: ./.github/actions/runner-cleanup
+      with:
+        gh_auth_token: ${{ steps.generate-github-app-tokens.outputs.access-token }}
+        github_org: ${{ github.repository_owner }}
+        runner_label: ${{ vars.RUNNER_LABEL }}

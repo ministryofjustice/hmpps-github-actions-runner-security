@@ -37,6 +37,7 @@ runs:
         provenance: false
         tags: |
           ghcr.io/ministryofjustice/${{ inputs.project }}:latest
+          ghcr.io/ministryofjustice/${{ inputs.project }}:latest-prod
           ghcr.io/ministryofjustice/${{ inputs.project }}:${{ inputs.version }}
       env:
         GH_AUTH_TOKEN: ${{ inputs.gh_auth_token }}

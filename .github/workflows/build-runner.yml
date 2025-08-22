@@ -35,6 +35,10 @@ jobs:
       - name: Update Dockerfile FROM org
         run: sed -i.bak "s/FROM.*/FROM ghcr.io\/ministryofjustice\/hmpps-github-actions-runner-base:latest/" Dockerfile
 
+      - id: app_version
+        name: Application version creators
+        uses: ministryofjustice/hmpps-github-actions/.github/actions/build-test-and-deploy/create_app_version@v2 # WORKFLOW_VERSION
+
       - name: GitHub app JWT and installation access token generation
         uses: jamestrousdale/github-app-jwt-token@0.1.4
         id: generate-github-app-tokens
@@ -48,6 +52,6 @@ jobs:
         with:
           project: hmpps-github-actions-runner-security
           push: ${{ env.push }}
-          version: 'latest-prod'
+          version: '${{steps.app_version.outputs.version}}'
           gh_auth_token: ${{ steps.generate-github-app-tokens.outputs.access-token }}
 

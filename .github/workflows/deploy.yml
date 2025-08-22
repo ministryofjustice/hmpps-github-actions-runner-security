@@ -39,7 +39,7 @@ on:
         description: Image version
         type: string
         required: true
-        default: 'latest'
+        default: 'latest-prod'
 
 jobs:
   deploy:
@@ -79,12 +79,3 @@ jobs:
           github_org: ${{ github.repository_owner }}
           runner_label: ${{ vars.RUNNER_LABEL }}
           runner_group: ${{ vars.RUNNER_GROUP }}
-
-      - name: Remove offline runners # when the last pod has been deployed
-        if: inputs.pod_number == '4' 
-        uses: ./.github/actions/runner-cleanup
-        with:
-          gh_auth_token: ${{ steps.generate-github-app-tokens.outputs.access-token }}
-          github_org: ${{ github.repository_owner }}
-          runner_label: ${{ vars.RUNNER_LABEL }}
-

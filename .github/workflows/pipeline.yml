@@ -23,7 +23,7 @@ jobs:
     secrets: inherit 
     
   # Deploy the pods individually so they can use separate API keys
-  deploy_to_prod_pod_1:
+  deploy-to-prod-pod-1:
     name: Deploy to prod
     uses: ./.github/workflows/deploy.yml
     needs:
@@ -38,3 +38,7 @@ jobs:
       deployments: write
       pull-requests: write
 
+  runner-cleanup:
+    name: Remove old runners
+    uses: ./.github/workflows/runner-cleanup.yml
+    needs: deploy-to-prod-pod-1

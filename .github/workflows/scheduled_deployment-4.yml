@@ -8,7 +8,7 @@ on:
 
 jobs:
   # Only need to deploy to production nowadays
-  deploy_to_prod:
+  deploy-to-prod:
     name: Deploy to prod
     uses: ./.github/workflows/deploy.yml
     with:
@@ -20,4 +20,9 @@ jobs:
       contents: read
       deployments: write
       pull-requests: write
-
+  
+  runner-cleanup:
+    name: Remove old runners
+    uses: ./.github/workflows/runner-cleanup.yml
+    needs: deploy-to-prod
+    secrets: inherit
