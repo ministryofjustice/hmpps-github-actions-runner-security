@@ -42,3 +42,4 @@ jobs:
     name: Remove old runners
     uses: ./.github/workflows/runner-cleanup.yml
     needs: deploy-to-prod-pod-1
+    secrets: inherit
