@@ -7,6 +7,7 @@ generic-service:
     repository: ghcr.io/ministryofjustice/hmpps-github-actions-runner-security
     tag: xxx    # override at deployment time
     port: 8080
+    pullPolicy: Always
 
   ingress:
     enabled: false
