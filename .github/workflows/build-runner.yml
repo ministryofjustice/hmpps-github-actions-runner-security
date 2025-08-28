@@ -33,7 +33,7 @@ jobs:
       - uses: actions/checkout@v5
 
       - name: Update Dockerfile FROM org
-        run: sed -i.bak "s/FROM.*/FROM ghcr.io\/ministryofjustice\/hmpps-github-actions-runner-base:latest/" Dockerfile
+        run: sed -i.bak "s/FROM.*/FROM ghcr.io\/ministryofjustice\/hmpps-github-actions-runner-base:latest-prod/" Dockerfile
 
       - id: app_version
         name: Application version creators
