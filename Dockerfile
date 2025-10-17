@@ -16,7 +16,7 @@ ENV CONTAINER_USER="runner" \
 
 # Checked by renovate
 ENV ACTIONS_RUNNER_VERSION="2.328.0"
-ENV GIT_LFS_VERSION="3.7.0"
+ENV GIT_LFS_VERSION="3.7.1"
 
 # Prepare the runner
 RUN <<EOF
