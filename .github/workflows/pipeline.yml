@@ -43,3 +43,6 @@ jobs:
     uses: ./.github/workflows/runner-cleanup.yml
     needs: deploy-to-prod-pod-1
     secrets: inherit
+    permissions:
+      contents: read
+      pull-requests: write
