@@ -15,7 +15,7 @@ ENV CONTAINER_USER="runner" \
     DEBIAN_FRONTEND="noninteractive"
 
 # Checked by renovate
-ENV ACTIONS_RUNNER_VERSION="2.329.0"
+ENV ACTIONS_RUNNER_VERSION="2.330.0"
 ENV GIT_LFS_VERSION="3.7.1"
 
 # Prepare the runner
