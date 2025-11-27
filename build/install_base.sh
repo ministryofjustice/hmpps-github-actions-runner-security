@@ -5,7 +5,7 @@ set -euo pipefail
 function install_essentials() {
   apt-get install -y --no-install-recommends \
       lsb-release \
-      curl \
+      curl 
 }
 
 function install_tools_apt() {

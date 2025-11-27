@@ -3,7 +3,7 @@ FROM ubuntu:noble
 
 LABEL org.opencontainers.image.vendor="Ministry of Justice" \
       org.opencontainers.image.authors="HMPPS DPS" \
-      org.opencontainers.image.title="Actions Runner" \
+      org.opencontainers.image.title="Security Actions Runner" \
       org.opencontainers.image.description="Security Actions Runner image for HMPPS DPS" \
       org.opencontainers.image.url="https://github.com/ministryofjustice/hmpps-github-actions-runner-security"
 
