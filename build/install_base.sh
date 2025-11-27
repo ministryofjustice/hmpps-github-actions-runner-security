@@ -38,5 +38,4 @@ install_essentials
 apt-get update
 install_tools
 
-remove_sources
 remove_caches

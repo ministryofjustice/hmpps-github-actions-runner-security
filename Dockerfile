@@ -16,7 +16,7 @@ ENV CONTAINER_USER="runner" \
     LANG=en_US.UTF-8 \
     LANGUAGE=en_US.UTF-8 \
     LC_ALL=en_US.UTF-8 \
-    DUMB_INIT_VERSION="1.2.2"
+    DUMB_INIT_VERSION="1.2.2" 
 
 # Checked by renovate
 ENV ACTIONS_RUNNER_VERSION="2.330.0" \
@@ -27,41 +27,33 @@ SHELL ["/bin/bash", "-e", "-u", "-o", "pipefail", "-c"]
 
 COPY --chmod=700 build/ /tmp/build/
 
-# Prepare the runner
-RUN <<EOF
+# Install base tools and configure sources (cacheable layer)
+RUN --mount=type=cache,target=/var/cache/apt,sharing=locked \
+    --mount=type=cache,target=/var/lib/apt,sharing=locked \
+    /tmp/build/install_base.sh
 
-/tmp/build/install_base.sh
+# Create user and directories (stable layer)
+RUN groupadd \
+      --gid ${CONTAINER_GID} \
+      --system \
+      ${CONTAINER_GROUP} && \
+    useradd \
+      --uid ${CONTAINER_UID} \
+      --gid ${CONTAINER_GROUP} \
+      --create-home \
+      ${CONTAINER_USER} && \
+    mkdir --parents ${CONTAINER_HOME} && \
+    chown --recursive ${CONTAINER_USER}:${CONTAINER_GROUP} ${CONTAINER_HOME}
 
-groupadd \
-  --gid ${CONTAINER_GID} \
-  --system \
-  ${CONTAINER_GROUP}
-
-useradd \
-  --uid ${CONTAINER_UID} \
-  --gid ${CONTAINER_GROUP} \
-  --create-home \
-  ${CONTAINER_USER}
-
-mkdir --parents ${CONTAINER_HOME}
-
-chown --recursive ${CONTAINER_USER}:${CONTAINER_GROUP} ${CONTAINER_HOME}
-
-
-curl --location "https://github.com/actions/runner/releases/download/v${ACTIONS_RUNNER_VERSION}/actions-runner-linux-x64-${ACTIONS_RUNNER_VERSION}.tar.gz" \
-  --output "actions-runner-linux-x64-${ACTIONS_RUNNER_VERSION}.tar.gz"
-
-# Validate the checksum
-ACTIONS_RUNNER_PKG_SHA=$(curl -s --location "https://github.com/actions/runner/releases/tag/v${ACTIONS_RUNNER_VERSION}" | grep -A10 "SHA-256 Checksums" | grep actions-runner-linux-x64-${ACTIONS_RUNNER_VERSION} | awk -F'[<> ]' '{print $4}')
-echo "Release ACTIONS_RUNNER_PKG_SHA   : ${ACTIONS_RUNNER_PKG_SHA}"
-echo "Downloaded ACTIONS_RUNNER_PKG_SHA: $(sha256sum -b actions-runner-linux-x64-${ACTIONS_RUNNER_VERSION}.tar.gz) | cut -d\  -f1"
-
-echo "${ACTIONS_RUNNER_PKG_SHA}"  "actions-runner-linux-x64-${ACTIONS_RUNNER_VERSION}.tar.gz" | /usr/bin/sha256sum --check
-
-tar --extract --gzip --file="actions-runner-linux-x64-${ACTIONS_RUNNER_VERSION}.tar.gz" --directory="${CONTAINER_HOME}"
-
-rm --force "actions-runner-linux-x64-${ACTIONS_RUNNER_VERSION}.tar.gz"
-EOF
+# Download and install GitHub Actions runner (changes frequently with ACTIONS_RUNNER_VERSION)
+RUN curl --location "https://github.com/actions/runner/releases/download/v${ACTIONS_RUNNER_VERSION}/actions-runner-linux-x64-${ACTIONS_RUNNER_VERSION}.tar.gz" \
+      --output "actions-runner-linux-x64-${ACTIONS_RUNNER_VERSION}.tar.gz" && \
+    ACTIONS_RUNNER_PKG_SHA=$(curl -s --location "https://github.com/actions/runner/releases/tag/v${ACTIONS_RUNNER_VERSION}" | grep -A10 "SHA-256 Checksums" | grep actions-runner-linux-x64-${ACTIONS_RUNNER_VERSION} | awk -F'[<> ]' '{print $4}') && \
+    echo "Release ACTIONS_RUNNER_PKG_SHA   : ${ACTIONS_RUNNER_PKG_SHA}" && \
+    echo "Downloaded ACTIONS_RUNNER_PKG_SHA: $(sha256sum -b actions-runner-linux-x64-${ACTIONS_RUNNER_VERSION}.tar.gz | cut -d\  -f1)" && \
+    echo "${ACTIONS_RUNNER_PKG_SHA}  actions-runner-linux-x64-${ACTIONS_RUNNER_VERSION}.tar.gz" | /usr/bin/sha256sum --check && \
+    tar --extract --gzip --file="actions-runner-linux-x64-${ACTIONS_RUNNER_VERSION}.tar.gz" --directory="${CONTAINER_HOME}" && \
+    rm --force "actions-runner-linux-x64-${ACTIONS_RUNNER_VERSION}.tar.gz"
 
 COPY --chown=nobody:nobody --chmod=0755 src/usr/local/bin/entrypoint.sh /usr/local/bin/entrypoint.sh
 
