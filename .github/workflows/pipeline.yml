@@ -25,6 +25,8 @@ jobs:
   # Deploy the pods individually so they can use separate API keys
   deploy-to-prod-pod-1:
     name: Deploy to prod
+    # Only if it's main
+    if: github.ref == 'refs/heads/main'
     uses: ./.github/workflows/deploy.yml
     needs:
       - build-runner
