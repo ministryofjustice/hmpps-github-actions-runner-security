@@ -4,28 +4,8 @@ set -euo pipefail
 # Required by the build or runner operation
 function install_essentials() {
   apt-get install -y --no-install-recommends \
-      libicu-dev \
       lsb-release \
-      ca-certificates \
       curl \
-      git \
-      jq \
-      gnupg \
-      tar \
-      unzip \
-      zip \
-      apt-transport-https \
-      sudo \
-      gcc \
-      dirmngr \
-      locales \
-      gosu \
-      gpg-agent \
-      dumb-init \
-      redis-server \
-      httpie \
-      libsqlite3-dev \
-      python3
 }
 
 function install_tools_apt() {
@@ -46,25 +26,15 @@ echo en_US.UTF-8 UTF-8 >> /etc/locale.gen
 
 scripts_dir=$(dirname "$0")
 # shellcheck source=/dev/null
-source "$scripts_dir/sources.sh"
-# shellcheck source=/dev/null
 source "$scripts_dir/tools.sh"
 # shellcheck source=/dev/null
 source "$scripts_dir/config.sh"
 
 apt-get update
 install_essentials
-configure_sources
 
 apt-get update
-install_tools_apt
 install_tools
-
-# setup_sudoers
-# groupadd -g "$(group_id)" runner
-# useradd -mr -d /home/runner -u "$(user_id)" -g "$(group_id)" runner
-# usermod -aG sudo runner
-# usermod -aG docker runner
 
 remove_sources
 remove_caches

@@ -1,25 +1,36 @@
 #checkov:skip=CKV_DOCKER_2:actions/runner does not provider a mechanism for checking the health of the service
-FROM public.ecr.aws/ubuntu/ubuntu:24.04_stable
+FROM ubuntu:noble
 
 LABEL org.opencontainers.image.vendor="Ministry of Justice" \
       org.opencontainers.image.authors="HMPPS DPS" \
       org.opencontainers.image.title="Actions Runner" \
-      org.opencontainers.image.description="Actions Runner image for HMPPS DPS" \
-      org.opencontainers.image.url="https://github.com/ministryofjustice/hmpps-github-actions-runner"
+      org.opencontainers.image.description="Security Actions Runner image for HMPPS DPS" \
+      org.opencontainers.image.url="https://github.com/ministryofjustice/hmpps-github-actions-runner-security"
 
 ENV CONTAINER_USER="runner" \
     CONTAINER_UID="10000" \
     CONTAINER_GROUP="runner" \
     CONTAINER_GID="10000" \
     CONTAINER_HOME="/actions-runner" \
-    DEBIAN_FRONTEND="noninteractive"
+    DEBIAN_FRONTEND="noninteractive" \
+    LANG=en_US.UTF-8 \
+    LANGUAGE=en_US.UTF-8 \
+    LC_ALL=en_US.UTF-8 \
+    DUMB_INIT_VERSION="1.2.2"
 
 # Checked by renovate
-ENV ACTIONS_RUNNER_VERSION="2.329.0"
-ENV GIT_LFS_VERSION="3.7.1"
+ENV ACTIONS_RUNNER_VERSION="2.330.0" \
+    GIT_LFS_VERSION="3.7.1" \
+    VULNZ_VERSION="9.0.2"
+
+SHELL ["/bin/bash", "-e", "-u", "-o", "pipefail", "-c"]
+
+COPY --chmod=700 build/ /tmp/build/
 
 # Prepare the runner
 RUN <<EOF
+
+/tmp/build/install_base.sh
 
 groupadd \
   --gid ${CONTAINER_GID} \
