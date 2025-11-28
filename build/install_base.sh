@@ -15,8 +15,13 @@ function install_tools_apt() {
 }
 
 function remove_caches() {
-  rm -rf /var/lib/apt/lists/*
+  # Don't clean apt caches - they're handled by BuildKit cache mounts in Dockerfile
+  # apt-get clean
+  # rm -rf /var/lib/apt/lists/*
+  
+  # Clean temp directories to reduce final image size
   rm -rf /tmp/*
+  rm -rf /var/tmp/*
 }
 
 function setup_sudoers() {
@@ -36,6 +41,7 @@ apt-get update
 install_essentials
 
 apt-get update
+install_tools_apt
 install_tools
 
 remove_caches
