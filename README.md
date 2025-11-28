@@ -2,6 +2,8 @@
 This project builds and deploys self-hosted Github Runners to the MinistryOfJustice github organisation specifically for the use of security scans.
 It's deployed to Cloud Platforms, using Helm.
 
+The installation is based on our self-hosted runners ([hmpps-github-actions-runner](https://github.com/ministryofjustice/hmpps-github-actions-runner))
+
 For teams wishing to **use these runners in your own pipelines**, the documentation is [here](https://tech-docs.hmpps.service.justice.gov.uk/sre-internal-docs/).
 
 # Building and Deploying
@@ -44,4 +46,4 @@ Use the latest version of the runner and SHA from the [Github Actions Runner rel
 Renovate keeps track of the latest release and will raise PRs to track the updates.
 
 #### References
-The build process is based on the [browser-testing-github-actions-runner](https://github.com/ministryofjustice/browser-testing-github-actions-runner) project.
+The build process is based on the [browser-testing-github-actions-runner](https://github.com/ministryofjustice/browser-testing-github-actions-runner) project, improved by Matt - now using a single build [here](https://github.com/ministryofjustice/hmpps-github-actions-runner)

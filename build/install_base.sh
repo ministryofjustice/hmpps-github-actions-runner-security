@@ -1,6 +1,14 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
+# Remove docker-clean config that would override Keep-Downloaded-Packages
+rm -f /etc/apt/apt.conf.d/docker-clean
+echo 'Binary::apt::APT::Keep-Downloaded-Packages "true";' > /etc/apt/apt.conf.d/keep-cache
+
+# Remove lock files from cache mounts (Docker best practice)
+rm -f /var/cache/apt/archives/lock
+rm -f /var/lib/apt/lists/lock
+
 # Required by the build or runner operation
 function install_essentials() {
   apt-get install -y --no-install-recommends \
@@ -15,9 +23,9 @@ function install_tools_apt() {
 }
 
 function remove_caches() {
-  # Don't clean apt caches - they're handled by BuildKit cache mounts in Dockerfile
-  # apt-get clean
-  # rm -rf /var/lib/apt/lists/*
+  # Don't clean apt caches - they're persisted by BuildKit cache mounts
+  # This follows Docker's recommended pattern for cache mounts:
+  # https://docs.docker.com/reference/dockerfile/#example-cache-apt-packages
   
   # Clean temp directories to reduce final image size
   rm -rf /tmp/*

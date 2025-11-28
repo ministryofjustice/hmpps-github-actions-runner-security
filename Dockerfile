@@ -28,6 +28,8 @@ SHELL ["/bin/bash", "-e", "-u", "-o", "pipefail", "-c"]
 COPY --chmod=700 build/ /tmp/build/
 
 # Install base tools and configure sources (cacheable layer)
+# Cache package lists and downloaded .deb files to avoid re-downloading on rebuilds
+# Pattern from: https://docs.docker.com/reference/dockerfile/#example-cache-apt-packages
 RUN --mount=type=cache,target=/var/cache/apt,sharing=locked \
     --mount=type=cache,target=/var/lib/apt,sharing=locked \
     /tmp/build/install_base.sh
