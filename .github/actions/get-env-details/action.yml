@@ -17,7 +17,7 @@ outputs:
 runs:
   using: "composite"
   steps:
-    - uses: actions/checkout@v5
+    - uses: actions/checkout@v5.0.1
 
     - name: Map GitHub environment to Cloud Platform namespace
       id: cloud-platform
