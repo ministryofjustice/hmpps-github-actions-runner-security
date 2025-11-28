@@ -12,8 +12,10 @@ rm -f /var/lib/apt/lists/lock
 # Required by the build or runner operation
 function install_essentials() {
   apt-get install -y --no-install-recommends \
+      libicu-dev \
       lsb-release \
       ca-certificates \
+      locales \
       curl \
       jq
 }
