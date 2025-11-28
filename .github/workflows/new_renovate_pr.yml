@@ -11,7 +11,7 @@ jobs:
       contents: write
     steps:
     - name: Check out code
-      uses: actions/checkout@v5
+      uses: actions/checkout@v6
     - name: Get PR details
       id: get_pr_details
       run: |
