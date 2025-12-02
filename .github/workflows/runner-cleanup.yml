@@ -10,7 +10,7 @@ jobs:
     permissions:
       contents: read
     steps:
-    - uses: actions/checkout@v6
+    - uses: actions/checkout@v6.0.1
     - name: GitHub app JWT and installation access token generation
       uses: jamestrousdale/github-app-jwt-token@0.1.4
       id: generate-github-app-tokens
