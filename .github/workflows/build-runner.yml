@@ -33,7 +33,7 @@ jobs:
       - uses: actions/checkout@v6.0.1
       - id: app_version
         name: Application version creators
-        uses: ministryofjustice/hmpps-github-actions/.github/actions/build-test-and-deploy/create_app_version@v2.8.6 # WORKFLOW_VERSION
+        uses: ministryofjustice/hmpps-github-actions/.github/actions/build-test-and-deploy/create_app_version@v2.8.7 # WORKFLOW_VERSION
 
       - name: GitHub app JWT and installation access token generation
         uses: jamestrousdale/github-app-jwt-token@0.1.4
