@@ -30,7 +30,7 @@ jobs:
     name: Docker build
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v6.0.1
+      - uses: actions/checkout@v6.0.2
       - id: app_version
         name: Application version creators
         uses: ministryofjustice/hmpps-github-actions/.github/actions/build-test-and-deploy/create_app_version@v2.8.7 # WORKFLOW_VERSION
