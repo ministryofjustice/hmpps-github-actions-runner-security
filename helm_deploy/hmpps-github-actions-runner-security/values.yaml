@@ -34,6 +34,11 @@ generic-service:
   #   [name of kubernetes secret]:
   #     [name of environment variable as seen by app]: [key of kubernetes secret to load]
 
+  volumeMounts:
+    - name: security-runners-cache
+      mountPath: /opt/vulnz/cache
+      subPath: cache
+
   envFrom:
     - secretRef:
         name: hmpps-github-actions-runner-security
