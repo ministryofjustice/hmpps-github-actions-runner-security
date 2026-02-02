@@ -1,0 +1,53 @@
+# These PVCs must be created manually before deploying the Helm chart
+# The GitHub Actions service account doesn't have permissions to create PVCs
+#
+# To create this PVC, run:
+# kubectl apply -f helm_deploy/pvc.yaml -n hmpps-github-actions-runners-security
+
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: security-runners-cache-1
+spec:
+  accessModes:
+    - ReadWriteOnce
+  storageClassName: gp3
+  resources:
+    requests:
+      storage: 1Gi
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: security-runners-cache-2
+spec:
+  accessModes:
+    - ReadWriteOnce
+  storageClassName: gp3
+  resources:
+    requests:
+      storage: 1Gi
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: security-runners-cache-3
+spec:
+  accessModes:
+    - ReadWriteOnce
+  storageClassName: gp3
+  resources:
+    requests:
+      storage: 1Gi
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: security-runners-cache-4
+spec:
+  accessModes:
+    - ReadWriteOnce
+  storageClassName: gp3
+  resources:
+    requests:
+      storage: 1Gi

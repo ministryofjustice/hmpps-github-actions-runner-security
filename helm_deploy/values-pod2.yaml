@@ -3,7 +3,11 @@
 generic-service:
   nameOverride: hmpps-github-actions-runner-security-pod-2
 
+  volumes:
+    - name: security-runners-cache
+      persistentVolumeClaim:
+        claimName: security-runners-cache-2
+
 generic-prometheus-alerts:
   alertSeverity: hmpps-sre-alerts
   targetApplication: hmpps-github-actions-runner-security-pod-2
-
