@@ -14,7 +14,7 @@ spec:
   storageClassName: gp3
   resources:
     requests:
-      storage: 1Gi
+      storage: 2Gi
 ---
 apiVersion: v1
 kind: PersistentVolumeClaim
@@ -26,7 +26,7 @@ spec:
   storageClassName: gp3
   resources:
     requests:
-      storage: 1Gi
+      storage: 2Gi
 ---
 apiVersion: v1
 kind: PersistentVolumeClaim
@@ -38,7 +38,7 @@ spec:
   storageClassName: gp3
   resources:
     requests:
-      storage: 1Gi
+      storage: 2Gi
 ---
 apiVersion: v1
 kind: PersistentVolumeClaim
@@ -50,4 +50,4 @@ spec:
   storageClassName: gp3
   resources:
     requests:
-      storage: 1Gi
+      storage: 2Gi

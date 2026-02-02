@@ -1,7 +1,17 @@
 ---
 generic-service:
   nameOverride: hmpps-github-actions-runner-security
-  replicaCount: 1 # Individual runners so that a different API key can be used for each
+
+  # replicaCount must be 1 because the PVC uses gp3 storage (ReadWriteOnce)
+  # which only supports a single pod per volume
+  # Also they're individual runners so that a different API key can be used for each
+  replicaCount: 1 
+
+  # Use Recreate strategy to terminate old pod before starting new one
+  # Required for ReadWriteOnce volumes
+  strategy:
+    type: Recreate
+    rollingUpdate: null
 
   image:
     repository: ghcr.io/ministryofjustice/hmpps-github-actions-runner-security
