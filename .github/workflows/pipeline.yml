@@ -9,7 +9,6 @@ on:
       - 'feature/**'
 
 jobs:
-  # This uses the same base as hmpps-github-actions-runner
   build-runner:
     permissions:
       contents: read
@@ -20,12 +19,10 @@ jobs:
     uses: ./.github/workflows/build-runner.yml
     with:
       push: true
-    secrets: inherit 
-    
-  # Deploy the pods individually so they can use separate API keys
-  deploy-to-prod-pod-1:
+    secrets: inherit
+
+  deploy-to-prod:
     name: Deploy to prod
-    # Only if it's main
     if: github.ref == 'refs/heads/main'
     uses: ./.github/workflows/deploy.yml
     needs:
@@ -33,7 +30,6 @@ jobs:
     with:
       environment: production
       version: 'latest-prod'
-      pod_number: 1
     secrets: inherit
     permissions:
       contents: read
@@ -43,7 +39,7 @@ jobs:
   runner-cleanup:
     name: Remove old runners
     uses: ./.github/workflows/runner-cleanup.yml
-    needs: deploy-to-prod-pod-1
+    needs: deploy-to-prod
     secrets: inherit
     permissions:
       contents: read

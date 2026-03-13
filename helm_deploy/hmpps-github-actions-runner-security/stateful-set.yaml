@@ -1,0 +1,35 @@
+# helm_deploy/hmpps-github-actions-runner-security/templates/statefulset.yaml
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: {{ include "hmpps-github-actions-runner-security.fullname" . }}
+spec:
+  serviceName: {{ include "hmpps-github-actions-runner-security.fullname" . }}-headless
+  replicas: 4
+  selector:
+    matchLabels:
+      app: {{ include "hmpps-github-actions-runner-security.fullname" . }}
+  template:
+    spec:
+      containers:
+        - name: runner
+          image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}"
+          envFrom:
+            - secretRef:
+                name: hmpps-github-actions-runner-security
+          volumeMounts:
+            - name: security-runners-cache
+              mountPath: /opt/vulnz/cache
+              subPath: cache
+          readinessProbe:
+            exec:
+              command: [cat, /tmp/runner.ready]
+  volumeClaimTemplates:
+    - metadata:
+        name: security-runners-cache
+      spec:
+        accessModes: [ReadWriteOnce]
+        storageClassName: gp3
+        resources:
+          requests:
+            storage: 2Gi

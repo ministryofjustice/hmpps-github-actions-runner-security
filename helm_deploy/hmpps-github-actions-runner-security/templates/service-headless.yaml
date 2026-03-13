@@ -1,0 +1,13 @@
+# Required by StatefulSet to provide stable DNS for each pod.
+# Runners don't need to communicate with each other, but this is mandatory
+# for StatefulSet pod identity: <pod-name>.<svc-name>.<namespace>.svc.cluster.local
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ include "hmpps-github-actions-runner-security.fullname" . }}-headless
+  labels:
+    {{- include "hmpps-github-actions-runner-security.labels" . | nindent 4 }}
+spec:
+  clusterIP: None
+  selector:
+    {{- include "hmpps-github-actions-runner-security.selectorLabels" . | nindent 4 }}

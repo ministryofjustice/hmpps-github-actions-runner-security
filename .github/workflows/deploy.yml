@@ -1,4 +1,4 @@
-name: Deploy a runner pod
+name: Deploy runners
 
 on:
   workflow_call:
@@ -11,23 +11,9 @@ on:
         description: The image version to deploy
         type: string
         required: true
-      pod_number:
-        description: The pod number to deploy
-        type: string
-        required: true
 
   workflow_dispatch:
     inputs:
-      pod_number:
-        description: The pod number to deploy
-        type: choice
-        # The pod numbers are hardcoded in the helm chart, so we need to ensure they
-        required: true
-        options:
-          - '1'
-          - '2'
-          - '3'
-          - '4'
       environment:
         description: Environment
         type: choice
@@ -69,7 +55,6 @@ jobs:
         with:
           environment: ${{ inputs.environment }}
           version: ${{ inputs.version }}
-          pod_number: ${{ inputs.pod_number }}
           api: https://${{ secrets.KUBE_CLUSTER }}
           cert: ${{ secrets.KUBE_CERT }}
           cluster: ${{ secrets.KUBE_CLUSTER }}

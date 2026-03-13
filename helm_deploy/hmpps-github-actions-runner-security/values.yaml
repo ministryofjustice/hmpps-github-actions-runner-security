@@ -1,54 +1,31 @@
 ---
-generic-service:
-  nameOverride: hmpps-github-actions-runner-security
+# Number of runner pods in the StatefulSet.
+# Each pod gets its own PVC and derives its NVD API key from its ordinal (0-indexed).
+replicaCount: 4
 
-  # replicaCount must be 1 because the PVC uses gp3 storage (ReadWriteOnce)
-  # which only supports a single pod per volume
-  # Also they're individual runners so that a different API key can be used for each
-  replicaCount: 1 
+image:
+  repository: ghcr.io/ministryofjustice/hmpps-github-actions-runner-security
+  tag: latest-prod   # overridden at deploy time via --set image.tag=<version>
+  pullPolicy: Always
 
-  # Use Recreate strategy to terminate old pod before starting new one
-  # Required for ReadWriteOnce volumes
-  strategy:
-    type: Recreate
-    rollingUpdate: null
+# The Kubernetes secret that holds NVD_API_KEY_01..04, GH_AUTH_TOKEN, etc.
+secret:
+  name: hmpps-github-actions-runner-security
 
-  image:
-    repository: ghcr.io/ministryofjustice/hmpps-github-actions-runner-security
-    tag: xxx    # override at deployment time
-    port: 8080
-    pullPolicy: Always
+runner:
+  org: ""          # set via --set runner.org=... or environment secret
+  label: ""        # set via --set runner.label=...
+  group: ""        # set via --set runner.group=...
+  ephemeral: "false"
 
-  ingress:
-    enabled: false
+persistence:
+  storageClassName: gp3
+  size: 2Gi
 
-  # Due to a bug cant disable/override the sub chart.
-  # https://github.com/helm/helm/pull/12162
-  # Looks like it might be fixed, so...
-
-  livenessProbe: null
-
-  readinessProbe:
-    httpGet: null
-    exec:
-      command:
-        - cat
-        - /tmp/runner.ready
-    initialDelaySeconds: 10
-    periodSeconds: 10
-    timeoutSeconds: 5
-    failureThreshold: 5
-
-  # Pre-existing kubernetes secrets to load as environment variables in the deployment.
-  # namespace_secrets:
-  #   [name of kubernetes secret]:
-  #     [name of environment variable as seen by app]: [key of kubernetes secret to load]
-
-  volumeMounts:
-    - name: security-runners-cache
-      mountPath: /opt/vulnz/cache
-      subPath: cache
-
-  envFrom:
-    - secretRef:
-        name: hmpps-github-actions-runner-security
+resources:
+  requests:
+    memory: "512Mi"
+    cpu: "100m"
+  limits:
+    memory: "4Gi"
+    cpu: "2"

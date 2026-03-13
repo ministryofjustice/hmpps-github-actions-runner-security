@@ -1,0 +1,70 @@
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: {{ include "hmpps-github-actions-runner-security.fullname" . }}
+  labels:
+    {{- include "hmpps-github-actions-runner-security.labels" . | nindent 4 }}
+spec:
+  serviceName: {{ include "hmpps-github-actions-runner-security.fullname" . }}-headless
+  replicas: {{ .Values.replicaCount }}
+  podManagementPolicy: Parallel
+  updateStrategy:
+    type: RollingUpdate
+  selector:
+    matchLabels:
+      {{- include "hmpps-github-actions-runner-security.selectorLabels" . | nindent 6 }}
+  template:
+    metadata:
+      labels:
+        {{- include "hmpps-github-actions-runner-security.selectorLabels" . | nindent 8 }}
+    spec:
+      serviceAccountName: {{ include "hmpps-github-actions-runner-security.fullname" . }}
+      containers:
+        - name: runner
+          image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}"
+          imagePullPolicy: {{ .Values.image.pullPolicy }}
+          env:
+            # Injected by Kubernetes Downward API - used in entrypoint.sh to derive
+            # the correct NVD_API_KEY_NN from the pod ordinal
+            - name: POD_NAME
+              valueFrom:
+                fieldRef:
+                  fieldPath: metadata.name
+            - name: GH_AUTH_TOKEN
+              valueFrom:
+                secretKeyRef:
+                  name: {{ .Values.secret.name }}
+                  key: GH_AUTH_TOKEN
+            - name: RUNNER_LABEL
+              value: {{ .Values.runner.label | quote }}
+            - name: RUNNER_GROUP
+              value: {{ .Values.runner.group | quote }}
+            - name: GH_ORG
+              value: {{ .Values.runner.org | quote }}
+            - name: EPHEMERAL
+              value: {{ .Values.runner.ephemeral | quote }}
+          envFrom:
+            - secretRef:
+                name: {{ .Values.secret.name }}
+          volumeMounts:
+            - name: security-runners-cache
+              mountPath: /opt/vulnz/cache
+              subPath: cache
+          readinessProbe:
+            exec:
+              command: [cat, /tmp/runner.ready]
+            initialDelaySeconds: 10
+            periodSeconds: 10
+            timeoutSeconds: 5
+            failureThreshold: 5
+          resources:
+            {{- toYaml .Values.resources | nindent 12 }}
+  volumeClaimTemplates:
+    - metadata:
+        name: security-runners-cache
+      spec:
+        accessModes: [ReadWriteOnce]
+        storageClassName: {{ .Values.persistence.storageClassName }}
+        resources:
+          requests:
+            storage: {{ .Values.persistence.size }}

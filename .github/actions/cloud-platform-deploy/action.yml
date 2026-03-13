@@ -8,9 +8,6 @@ inputs:
   version:
     description: The version of the service to deploy
     required: true
-  pod_number:
-    description: The pod number to deploy
-    required: true
   api:
     description: The KUBE_ENV_API
     required: true
@@ -37,7 +34,7 @@ inputs:
     required: true
   runner_group:
     description: The runner group for the runners
-    required: true  
+    required: true
 
 runs:
   using: composite
@@ -58,21 +55,17 @@ runs:
         eval "$(/home/linuxbrew/.linuxbrew/bin/brew shellenv)"
         brew install helm
         yq -i ".appVersion = \"${{ inputs.version }}\"" "helm_deploy/${{ github.event.repository.name }}/Chart.yaml"
-        helm dependency update "helm_deploy/${{ github.event.repository.name }}"
-        exec helm upgrade '${{ github.event.repository.name }}-pod${{ inputs.pod_number }}' 'helm_deploy/${{ github.event.repository.name }}' \
+        exec helm upgrade '${{ github.event.repository.name }}' 'helm_deploy/${{ github.event.repository.name }}' \
           --atomic \
           --history-max 10 \
           --force \
           --install \
           --reset-values \
-          --set 'generic-service.image.tag=${{ inputs.version }}' \
+          --set 'image.tag=${{ inputs.version }}' \
           --set 'version=${{ inputs.version }}' \
           --timeout 10m \
-          --values 'helm_deploy/values-pod${{ inputs.pod_number }}.yaml' \
           --wait \
-          --set generic-service.env.GH_AUTH_TOKEN="${{ inputs.gh_auth_token }}" \
-          --set generic-service.env.RUNNER_LABEL="${{ inputs.runner_label }}" \
-          --set generic-service.env.RUNNER_GROUP="${{ inputs.runner_group }}" \
-          --set generic-service.env.GH_ORG="${{ inputs.github_org }}" \
-          --set generic-service.env.POD_NUMBER="${{ inputs.pod_number }}" 
+          --set runner.org="${{ inputs.github_org }}" \
+          --set runner.label="${{ inputs.runner_label }}" \
+          --set runner.group="${{ inputs.runner_group }}"
           
