@@ -16,7 +16,7 @@ function install_essentials() {
       lsb-release \
       ca-certificates \
       locales \
-      openjdk-25-jre-headless \
+      openjdk-17-jre-headless \
       curl \
       jq
 }
