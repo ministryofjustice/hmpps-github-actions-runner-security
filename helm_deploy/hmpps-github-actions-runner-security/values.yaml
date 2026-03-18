@@ -3,7 +3,7 @@
 replicaCount: 1
 
 image:
-  repository: ghcr.io/ministryofjustice/hmpps-james-bootstrap
+  repository: ghcr.io/ministryofjustice/hmpps-github-actions-runner-security
   tag: xxx         # overridden at deploy time via --set image.tag=<version>
   pullPolicy: Always
 
