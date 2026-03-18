@@ -32,3 +32,11 @@ Selector labels
 app.kubernetes.io/name: {{ include "hmpps-github-actions-runner-security.name" . }}
 app.kubernetes.io/instance: {{ .Release.Name }}
 {{- end }}
+
+{{/*
+Name of the Kubernetes Secret holding credentials.
+Falls back to the release name if secret.name is not set in values.
+*/}}
+{{- define "hmpps-github-actions-runner-security.secretName" -}}
+{{- .Values.secret.name | default .Release.Name }}
+{{- end }}

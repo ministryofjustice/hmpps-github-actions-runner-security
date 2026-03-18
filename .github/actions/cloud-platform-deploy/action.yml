@@ -1,10 +1,6 @@
 name: Cloud Platform Deploy
 description: Deploy to Cloud Platform using Helm
-
 inputs:
-  environment:
-    description: The environment to deploy to (dev/preprod/prod)
-    required: true
   version:
     description: The version of the service to deploy
     required: true
@@ -34,7 +30,7 @@ inputs:
     required: true
   runner_group:
     description: The runner group for the runners
-    required: true
+    required: true  
 
 runs:
   using: composite
@@ -56,16 +52,15 @@ runs:
         brew install helm
         yq -i ".appVersion = \"${{ inputs.version }}\"" "helm_deploy/${{ github.event.repository.name }}/Chart.yaml"
         exec helm upgrade '${{ github.event.repository.name }}' 'helm_deploy/${{ github.event.repository.name }}' \
-          --atomic \
+          --rollback-on-failure \
           --history-max 10 \
-          --force \
           --install \
           --reset-values \
           --set 'image.tag=${{ inputs.version }}' \
           --set 'version=${{ inputs.version }}' \
           --timeout 10m \
           --wait \
-          --set runner.org="${{ inputs.github_org }}" \
-          --set runner.label="${{ inputs.runner_label }}" \
-          --set runner.group="${{ inputs.runner_group }}"
-          
+          --set env.GH_AUTH_TOKEN="${{ inputs.gh_auth_token }}" \
+          --set env.RUNNER_LABELS="${{ inputs.runner_labels }}" \
+          --set env.RUNNER_GROUP="${{ inputs.runner_group }}" \
+          --set env.GH_ORG="${{ inputs.github_repository }}"         

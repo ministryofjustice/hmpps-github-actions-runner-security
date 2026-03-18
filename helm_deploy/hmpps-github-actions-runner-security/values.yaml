@@ -1,31 +1,30 @@
 ---
-# Number of runner pods in the StatefulSet.
-# Each pod gets its own PVC and derives its NVD API key from its ordinal (0-indexed).
-replicaCount: 4
+# Number of runner pods. Each pod registers as a separate GitHub Actions runner.
+replicaCount: 1
 
 image:
-  repository: ghcr.io/ministryofjustice/hmpps-github-actions-runner-security
-  tag: latest-prod   # overridden at deploy time via --set image.tag=<version>
+  repository: ghcr.io/ministryofjustice/hmpps-james-bootstrap
+  tag: xxx         # overridden at deploy time via --set image.tag=<version>
   pullPolicy: Always
 
-# The Kubernetes secret that holds NVD_API_KEY_01..04, GH_AUTH_TOKEN, etc.
-secret:
-  name: hmpps-github-actions-runner-security
+env:
+  GH_AUTH_TOKEN: ""     # GitHub PAT — set via --set at deploy time
+  RUNNER_LABELS: ""     # comma-separated runner label(s) for this repo-level runner
+  RUNNER_GROUP: ""      # Runner group
+  GH_ORG: ""            # Organisation
+  EPHEMERAL: "false"    # this needs to be false, I think - the token won't refresh otherwise
 
-runner:
-  org: ""          # set via --set runner.org=... or environment secret
-  label: ""        # set via --set runner.label=...
-  group: ""        # set via --set runner.group=...
-  ephemeral: "false"
+# Resource requests/limits for the runner container.
+resources:
+  requests:
+    cpu: 100m
+    memory: 256Mi
+  limits:
+    cpu: 1000m
+    memory: 1Gi
 
+# Persistent volume claim settings for the shared cache volume.
 persistence:
   storageClassName: gp3
   size: 2Gi
 
-resources:
-  requests:
-    memory: "512Mi"
-    cpu: "100m"
-  limits:
-    memory: "4Gi"
-    cpu: "2"

@@ -18,7 +18,6 @@ spec:
       labels:
         {{- include "hmpps-github-actions-runner-security.selectorLabels" . | nindent 8 }}
     spec:
-      serviceAccountName: {{ include "hmpps-github-actions-runner-security.fullname" . }}
       containers:
         - name: runner
           image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}"
@@ -30,24 +29,16 @@ spec:
               valueFrom:
                 fieldRef:
                   fieldPath: metadata.name
-            - name: GH_AUTH_TOKEN
-              valueFrom:
-                secretKeyRef:
-                  name: {{ .Values.secret.name }}
-                  key: GH_AUTH_TOKEN
-            - name: RUNNER_LABEL
-              value: {{ .Values.runner.label | quote }}
-            - name: RUNNER_GROUP
-              value: {{ .Values.runner.group | quote }}
-            - name: GH_ORG
-              value: {{ .Values.runner.org | quote }}
-            - name: EPHEMERAL
-              value: {{ .Values.runner.ephemeral | quote }}
-          envFrom:
-            - secretRef:
-                name: {{ .Values.secret.name }}
+            # All other env vars come from values.env and are set via --set at deploy time.
+            # To change which variables are injected, update the env: block in values.yaml
+            # and the corresponding --set flags in the deploy action — the template itself
+            # does not need to change.
+            {{- range $key, $value := .Values.env }}
+            - name: {{ $key }}
+              value: {{ $value | quote }}
+            {{- end }}
           volumeMounts:
-            - name: security-runners-cache
+            - name: runners-cache
               mountPath: /opt/vulnz/cache
               subPath: cache
           readinessProbe:
@@ -61,7 +52,7 @@ spec:
             {{- toYaml .Values.resources | nindent 12 }}
   volumeClaimTemplates:
     - metadata:
-        name: security-runners-cache
+        name: runners-cache
       spec:
         accessModes: [ReadWriteOnce]
         storageClassName: {{ .Values.persistence.storageClassName }}
