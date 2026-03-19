@@ -8,6 +8,11 @@ on:
       - 'feat/**'
       - 'feature/**'
 
+  schedule:
+    - cron: "30 00,12 * * *"  # Every 12 hours - needs to complete before OWASP scans start from 03:00
+
+  workflow_dispatch:
+
 jobs:
   build-runner:
     permissions:
