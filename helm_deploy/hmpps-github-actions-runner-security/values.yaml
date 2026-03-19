@@ -14,6 +14,15 @@ env:
   GH_ORG: ""            # Organisation
   EPHEMERAL: "false"    # this needs to be false, I think - the token won't refresh otherwise
 
+# Resource requests/limits for the runner container.
+resources:
+  requests:
+    cpu: 100m
+    memory: 256Mi
+  limits:
+    cpu: 1000m
+    memory: 2Gi
+
 # Persistent volume claim settings for the shared cache volume.
 persistence:
   storageClassName: gp3
