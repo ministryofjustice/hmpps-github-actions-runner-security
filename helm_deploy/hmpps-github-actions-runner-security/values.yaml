@@ -2,6 +2,10 @@
 # Number of runner pods. Each pod registers as a separate GitHub Actions runner.
 replicaCount: 4
 
+# Name of the pre-existing Kubernetes secret to load as environment variables.
+# Must contain NVD_API_KEY_01..04 (and any other secrets the runner needs).
+secretName: hmpps-github-actions-runner-security
+
 image:
   repository: ghcr.io/ministryofjustice/hmpps-github-actions-runner-security
   tag: xxx         # overridden at deploy time via --set image.tag=<version>

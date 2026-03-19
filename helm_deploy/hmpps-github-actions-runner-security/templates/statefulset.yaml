@@ -22,6 +22,11 @@ spec:
         - name: runner
           image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}"
           imagePullPolicy: {{ .Values.image.pullPolicy }}
+          envFrom:
+            # Loads all keys from the secret as env vars, including NVD_API_KEY_01..04.
+            # env entries below take precedence over any overlapping keys from the secret.
+            - secretRef:
+                name: {{ .Values.secretName }}
           env:
             # Injected by Kubernetes Downward API - used in entrypoint.sh to derive
             # the correct NVD_API_KEY_NN from the pod ordinal
@@ -30,9 +35,6 @@ spec:
                 fieldRef:
                   fieldPath: metadata.name
             # All other env vars come from values.env and are set via --set at deploy time.
-            # To change which variables are injected, update the env: block in values.yaml
-            # and the corresponding --set flags in the deploy action — the template itself
-            # does not need to change.
             {{- range $key, $value := .Values.env }}
             - name: {{ $key }}
               value: {{ $value | quote }}
