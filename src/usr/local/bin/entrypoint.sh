@@ -24,7 +24,7 @@ EPHEMERAL="${EPHEMERAL:-"false"}"
 echo "Runner parameters:"
 echo "  GitHub org: ${GH_ORG}"
 echo "  Runner Name: $(hostname)"
-echo "  Runner Labels: ${RUNNER_LABEL}"
+echo "  Runner Label: ${RUNNER_LABEL}"
 echo "  Runner group: ${RUNNER_GROUP}"
 
 echo "Obtaining registration token"

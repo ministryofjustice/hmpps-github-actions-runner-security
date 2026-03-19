@@ -61,6 +61,6 @@ runs:
           --timeout 10m \
           --wait \
           --set env.GH_AUTH_TOKEN="${{ inputs.gh_auth_token }}" \
-          --set env.RUNNER_LABELS="${{ inputs.runner_labels }}" \
+          --set env.RUNNER_LABEL="${{ inputs.runner_label }}" \
           --set env.RUNNER_GROUP="${{ inputs.runner_group }}" \
           --set env.GH_ORG="${{ inputs.github_repository }}"         
