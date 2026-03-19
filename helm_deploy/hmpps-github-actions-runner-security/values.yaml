@@ -1,6 +1,6 @@
 ---
 # Number of runner pods. Each pod registers as a separate GitHub Actions runner.
-replicaCount: 1
+replicaCount: 4
 
 image:
   repository: ghcr.io/ministryofjustice/hmpps-github-actions-runner-security
