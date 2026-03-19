@@ -1,54 +1,21 @@
 ---
-generic-service:
-  nameOverride: hmpps-github-actions-runner-security
+# Number of runner pods. Each pod registers as a separate GitHub Actions runner.
+replicaCount: 1
 
-  # replicaCount must be 1 because the PVC uses gp3 storage (ReadWriteOnce)
-  # which only supports a single pod per volume
-  # Also they're individual runners so that a different API key can be used for each
-  replicaCount: 1 
+image:
+  repository: ghcr.io/ministryofjustice/hmpps-github-actions-runner-security
+  tag: xxx         # overridden at deploy time via --set image.tag=<version>
+  pullPolicy: Always
 
-  # Use Recreate strategy to terminate old pod before starting new one
-  # Required for ReadWriteOnce volumes
-  strategy:
-    type: Recreate
-    rollingUpdate: null
+env:
+  GH_AUTH_TOKEN: ""     # GitHub PAT — set via --set at deploy time
+  RUNNER_LABELS: ""     # comma-separated runner label(s) for this repo-level runner
+  RUNNER_GROUP: ""      # Runner group
+  GH_ORG: ""            # Organisation
+  EPHEMERAL: "false"    # this needs to be false, I think - the token won't refresh otherwise
 
-  image:
-    repository: ghcr.io/ministryofjustice/hmpps-github-actions-runner-security
-    tag: xxx    # override at deployment time
-    port: 8080
-    pullPolicy: Always
+# Persistent volume claim settings for the shared cache volume.
+persistence:
+  storageClassName: gp3
+  size: 2Gi
 
-  ingress:
-    enabled: false
-
-  # Due to a bug cant disable/override the sub chart.
-  # https://github.com/helm/helm/pull/12162
-  # Looks like it might be fixed, so...
-
-  livenessProbe: null
-
-  readinessProbe:
-    httpGet: null
-    exec:
-      command:
-        - cat
-        - /tmp/runner.ready
-    initialDelaySeconds: 10
-    periodSeconds: 10
-    timeoutSeconds: 5
-    failureThreshold: 5
-
-  # Pre-existing kubernetes secrets to load as environment variables in the deployment.
-  # namespace_secrets:
-  #   [name of kubernetes secret]:
-  #     [name of environment variable as seen by app]: [key of kubernetes secret to load]
-
-  volumeMounts:
-    - name: security-runners-cache
-      mountPath: /opt/vulnz/cache
-      subPath: cache
-
-  envFrom:
-    - secretRef:
-        name: hmpps-github-actions-runner-security

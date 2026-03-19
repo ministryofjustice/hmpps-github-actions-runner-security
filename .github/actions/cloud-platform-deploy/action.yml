@@ -1,15 +1,8 @@
 name: Cloud Platform Deploy
 description: Deploy to Cloud Platform using Helm
-
 inputs:
-  environment:
-    description: The environment to deploy to (dev/preprod/prod)
-    required: true
   version:
     description: The version of the service to deploy
-    required: true
-  pod_number:
-    description: The pod number to deploy
     required: true
   api:
     description: The KUBE_ENV_API
@@ -58,21 +51,16 @@ runs:
         eval "$(/home/linuxbrew/.linuxbrew/bin/brew shellenv)"
         brew install helm
         yq -i ".appVersion = \"${{ inputs.version }}\"" "helm_deploy/${{ github.event.repository.name }}/Chart.yaml"
-        helm dependency update "helm_deploy/${{ github.event.repository.name }}"
-        exec helm upgrade '${{ github.event.repository.name }}-pod${{ inputs.pod_number }}' 'helm_deploy/${{ github.event.repository.name }}' \
-          --atomic \
+        exec helm upgrade '${{ github.event.repository.name }}' 'helm_deploy/${{ github.event.repository.name }}' \
+          --rollback-on-failure \
           --history-max 10 \
-          --force \
           --install \
           --reset-values \
-          --set 'generic-service.image.tag=${{ inputs.version }}' \
+          --set 'image.tag=${{ inputs.version }}' \
           --set 'version=${{ inputs.version }}' \
           --timeout 10m \
-          --values 'helm_deploy/values-pod${{ inputs.pod_number }}.yaml' \
           --wait \
-          --set generic-service.env.GH_AUTH_TOKEN="${{ inputs.gh_auth_token }}" \
-          --set generic-service.env.RUNNER_LABEL="${{ inputs.runner_label }}" \
-          --set generic-service.env.RUNNER_GROUP="${{ inputs.runner_group }}" \
-          --set generic-service.env.GH_ORG="${{ inputs.github_org }}" \
-          --set generic-service.env.POD_NUMBER="${{ inputs.pod_number }}" 
-          
+          --set env.GH_AUTH_TOKEN="${{ inputs.gh_auth_token }}" \
+          --set env.RUNNER_LABELS="${{ inputs.runner_labels }}" \
+          --set env.RUNNER_GROUP="${{ inputs.runner_group }}" \
+          --set env.GH_ORG="${{ inputs.github_repository }}"         

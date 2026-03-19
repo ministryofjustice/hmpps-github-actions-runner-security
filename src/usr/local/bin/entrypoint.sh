@@ -5,8 +5,12 @@ set -euo pipefail
 echo "Setting up NVD vulnerability database mirror"
 echo "File location: /opt/vulnz/vulnz.jar"
 
-export pod=$(printf '%02d' ${POD_NUMBER})
-export key_var="NVD_API_KEY_${pod}"
+# POD_NAME is injected via the Kubernetes Downward API (e.g. "hmpps-github-actions-runner-security-0").
+# Strip everything up to and including the last "-" to get the 0-based ordinal,
+# then convert to a 1-based two-digit index to match secret keys NVD_API_KEY_01..04.
+ordinal="${POD_NAME##*-}"
+pod=$(printf '%02d' $((ordinal + 1)))
+key_var="NVD_API_KEY_${pod}"
 export NVD_API_KEY="${!key_var}"
 
 echo "NVD API KEY (NVD_API_KEY_${pod}): ${NVD_API_KEY:0:3}...${NVD_API_KEY: -3}"
