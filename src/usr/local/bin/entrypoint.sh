@@ -21,9 +21,14 @@ echo "Database mirror setup initiated - now starting the runner"
 ACTIONS_RUNNER_DIRECTORY="/actions-runner"
 EPHEMERAL="${EPHEMERAL:-"false"}"
 
+# Append a random suffix so each startup registers a unique name.
+# The StatefulSet hostname is stable across restarts, so without this a restarting
+# pod can collide with its own previous registration before GitHub deregisters it.
+RUNNER_NAME="$(hostname)-$(openssl rand -hex 8)"
+
 echo "Runner parameters:"
 echo "  GitHub org: ${GH_ORG}"
-echo "  Runner Name: $(hostname)"
+echo "  Runner Name: ${RUNNER_NAME}"
 echo "  Runner Label: ${RUNNER_LABEL}"
 echo "  Runner group: ${RUNNER_GROUP}"
 
@@ -65,7 +70,7 @@ bash "${ACTIONS_RUNNER_DIRECTORY}/config.sh" ${EPHEMERAL_FLAG} \
   --disableupdate \
   --url "https://github.com/${GH_ORG}" \
   --token "${REPO_TOKEN}" \
-  --name "$(hostname)" \
+  --name "${RUNNER_NAME}" \
   --labels "${RUNNER_LABEL}" \
   --runnergroup "${RUNNER_GROUP}"
 
