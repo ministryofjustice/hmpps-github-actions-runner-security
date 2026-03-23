@@ -52,7 +52,7 @@ runs:
         brew install helm
         yq -i ".appVersion = \"${{ inputs.version }}\"" "helm_deploy/${{ github.event.repository.name }}/Chart.yaml"
         exec helm upgrade '${{ github.event.repository.name }}' 'helm_deploy/${{ github.event.repository.name }}' \
-          --rollback-on-failure \
+          --force \
           --history-max 10 \
           --install \
           --reset-values \
