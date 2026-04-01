@@ -43,12 +43,13 @@ jobs:
         with:
           environment: ${{ inputs.environment }}
 
-      - name: GitHub app JWT and installation access token generation
-        uses: jamestrousdale/github-app-jwt-token@3be1ec4108931ed32de7c5b0fa420219fe0b3eba # 0.1.4
+      - name: GitHub app installation access token generation
+        uses: actions/create-github-app-token@f8d387b68d61c58ab83c6c016672934102569859 # v3
         id: generate-github-app-tokens
         with:
           app-id: ${{ vars.GH_APP_ID }}
           private-key: ${{ secrets.GH_APP_PRIVATE_KEY }}
+          owner: ministryofjustice
 
       - name: Deploy to Platform
         uses: ./.github/actions/cloud-platform-deploy
@@ -59,7 +60,7 @@ jobs:
           cluster: ${{ secrets.KUBE_CLUSTER }}
           namespace: ${{ secrets.KUBE_NAMESPACE }}
           token: ${{ secrets.KUBE_TOKEN }}   
-          gh_auth_token: ${{ steps.generate-github-app-tokens.outputs.access-token }}
+          gh_auth_token: ${{ steps.generate-github-app-tokens.outputs.token }}
           github_org: ${{ github.repository_owner }}
           runner_label: ${{ vars.RUNNER_LABEL }}
           runner_group: ${{ vars.RUNNER_GROUP }}
