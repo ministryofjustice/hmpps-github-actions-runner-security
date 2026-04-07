@@ -18,7 +18,7 @@
       "datasourceTemplate": "github-releases",
       "packageNameTemplate": "actions/runner",
       "versioningTemplate": "semver",
-      "extractVersionTemplate": "^v(?<version>\\d+\\.\\d+\\.\\d+)$"
+      "extractVersionTemplate": "^v(?<version>\d+\.\d+\.\d+)$"
     },
     {
       "customType": "regex",
@@ -31,7 +31,7 @@
       "datasourceTemplate": "github-releases",
       "packageNameTemplate": "git-lfs/git-lfs",
       "versioningTemplate": "semver",
-      "extractVersionTemplate": "^v(?<version>\\d+\\.\\d+\\.\\d+)$"
+      "extractVersionTemplate": "^v(?<version>\d+\.\d+\.\d+)$"
     },
     {
       "customType": "regex",
@@ -44,7 +44,7 @@
       "datasourceTemplate": "github-releases",
       "packageNameTemplate": "jeremylong/open-vulnerability-cli",
       "versioningTemplate": "semver",
-      "extractVersionTemplate": "^v(?<version>\\d+\\.\\d+\\.\\d+)$"
+      "extractVersionTemplate": "^v(?<version>\d+\.\d+\.\d+)$"
     }
   ],
   "packageRules": [
@@ -58,8 +58,10 @@
     },
     {
       "matchManagers": ["github-actions"],
-      "matchPackagePatterns": [".*"],
-      "versioning": "digest"
+      "versioning": "digest",
+      "matchPackageNames": [
+        "/.*/"
+      ]
     }
   ]
 }
