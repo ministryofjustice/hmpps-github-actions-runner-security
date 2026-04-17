@@ -48,7 +48,7 @@ jobs:
         id: generate-github-app-tokens
         with:
           client-id: ${{ vars.GH_APP_ID }}
-          repositories: ${{ github.repository }}
+          repositories: ${{ github.event.repository.name }}
           private-key: ${{ secrets.GH_APP_PRIVATE_KEY }}
           owner: ministryofjustice
 
