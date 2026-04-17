@@ -50,7 +50,32 @@ runs:
       run: |
         eval "$(/home/linuxbrew/.linuxbrew/bin/brew shellenv)"
         brew install helm
+
+        # Delete any pods stuck in CrashLoopBackOff or that are Running but not
+        # Ready (idle-sleeping on an expired token). The StatefulSet controller
+        # will recreate them with the new spec (including a fresh GH_AUTH_TOKEN)
+        # once the helm upgrade applies.
+        echo "Checking for stuck pods..."
+        stuck_pods=$(
+          kubectl get pods -l app.kubernetes.io/name=${{ github.event.repository.name }} -o json 2>/dev/null \
+            | jq -r '
+              .items[] | select(
+                # CrashLoopBackOff or Error
+                (.status.containerStatuses[]? | .state.waiting.reason == "CrashLoopBackOff" or .state.waiting.reason == "Error")
+                or
+                # Running but container not ready (idle-sleeping on expired token)
+                (.status.phase == "Running" and (.status.containerStatuses[]? | .ready == false))
+              ) | .metadata.name'
+        ) || true
+        if [[ -n "${stuck_pods}" ]]; then
+          echo "Deleting stuck pods: ${stuck_pods}"
+          echo "${stuck_pods}" | xargs kubectl delete pod --wait=false || true
+        else
+          echo "No stuck pods found"
+        fi
+
         yq -i ".appVersion = \"${{ inputs.version }}\"" "helm_deploy/${{ github.event.repository.name }}/Chart.yaml"
+        helm dependency build "helm_deploy/${{ github.event.repository.name }}"
         exec helm upgrade '${{ github.event.repository.name }}' 'helm_deploy/${{ github.event.repository.name }}' \
           --cleanup-on-fail \
           --history-max 10 \
