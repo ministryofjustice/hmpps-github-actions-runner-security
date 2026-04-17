@@ -1,0 +1,53 @@
+{{- $fullName := include "hmpps-github-actions-runner-security.fullname" . -}}
+apiVersion: monitoring.coreos.com/v1
+kind: PrometheusRule
+metadata:
+  name: {{ $fullName }}
+  labels:
+    {{- include "hmpps-github-actions-runner-security.labels" . | nindent 4 }}
+    prometheus: cloud-platform
+spec:
+  groups:
+    - name: {{ $fullName }}
+      rules:
+        # Fires when any runner pod is Running but its container is not ready
+        # for more than 15 minutes. This catches the "idle sleep" state where
+        # the entrypoint could not obtain a registration token (expired
+        # GH_AUTH_TOKEN) and is waiting to be replaced by the next deployment.
+        - alert: RunnerPodNotReady
+          annotations:
+            summary: Runner pod is running but not ready.
+            message: >-
+              Pod {{`{{`}} $labels.namespace {{`}}`}}/{{`{{`}} $labels.pod {{`}}`}}
+              has been running but not ready for more than 15 minutes.
+              The GitHub auth token has likely expired — a new deployment is
+              needed to provide a fresh token.
+          expr: |
+            (
+              kube_pod_status_phase{namespace="{{ .Release.Namespace }}", pod=~"{{ $fullName }}-[0-9]+", phase="Running"} == 1
+              and on(namespace, pod)
+              kube_pod_status_ready{namespace="{{ .Release.Namespace }}", pod=~"{{ $fullName }}-[0-9]+", condition="true"} == 0
+            )
+          for: 15m
+          labels:
+            severity: {{ .Values.alertSeverity | default "warning" }}
+
+        # Fires when ALL runner pods are not ready. This is a critical condition
+        # meaning no runners are available to process GitHub Actions jobs.
+        - alert: AllRunnerPodsNotReady
+          annotations:
+            summary: All runner pods are unavailable.
+            message: >-
+              All {{ .Values.replicaCount }} runner pods in
+              {{`{{`}} $labels.namespace {{`}}`}} are not ready.
+              No GitHub Actions jobs can be processed until a new deployment
+              provides fresh tokens.
+          expr: |
+            (
+              count(kube_pod_status_ready{namespace="{{ .Release.Namespace }}", pod=~"{{ $fullName }}-[0-9]+", condition="true"} == 1) or vector(0)
+            ) == 0
+            and
+            count(kube_pod_info{namespace="{{ .Release.Namespace }}", pod=~"{{ $fullName }}-[0-9]+"}) > 0
+          for: 5m
+          labels:
+            severity: {{ .Values.alertSeverity | default "warning" }}

@@ -32,3 +32,15 @@ persistence:
   storageClassName: gp3
   size: 2Gi
 
+# Severity label for custom PrometheusRule alerts (used by Alertmanager routing).
+alertSeverity: hmpps-sre-alerts-prod
+
+# -- generic-prometheus-alerts sub-chart configuration
+# Provides standard Kubernetes alerts (CrashLoopBackOff, OOMKilled, etc.)
+generic-prometheus-alerts:
+  targetApplication: hmpps-github-actions-runner-security
+  # StatefulSet pods are named <name>-0, <name>-1, etc. — override the default
+  # Deployment pod regex so alerts match correctly.
+  podTargetOverride: "hmpps-github-actions-runner-security-[0-9]+"
+  alertSeverity: hmpps-sre-alerts-prod
+
