@@ -5,6 +5,27 @@ set -euo pipefail
 echo "Setting up NVD vulnerability database mirror"
 echo "File location: /opt/vulnz/vulnz.jar"
 
+# Validate the cache first - sometimes they get into a bit of a pickle
+echo "Scanning /opt/vulnz/cache..."
+# Purge stale files (older than 7 days) before checking integrity
+find /opt/vulnz/cache -name "*.gz" -mtime +7 -print -delete
+for gzfile in /opt/vulnz/cache/*.gz; do
+  # Skip the glob literal if the directory is empty
+  [[ -e "$gzfile" ]] || continue
+  # Remove zero-byte files (gzip -t passes on them but they're useless)
+  if [[ ! -s "$gzfile" ]]; then
+    echo "Empty file detected, removing: $gzfile"
+    rm -f "$gzfile"
+    continue
+  fi
+  # Remove files that fail gzip integrity check
+  if ! gzip -t "$gzfile" 2>/dev/null; then
+    echo "Corrupt gzip file detected, removing: $gzfile"
+    rm -f "$gzfile"
+  fi
+done
+
+
 # POD_NAME is injected via the Kubernetes Downward API (e.g. "hmpps-github-actions-runner-security-0").
 # Strip everything up to and including the last "-" to get the 0-based ordinal,
 # then convert to a 1-based two-digit index to match secret keys NVD_API_KEY_01..04.
