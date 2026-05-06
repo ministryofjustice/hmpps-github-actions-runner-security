@@ -37,7 +37,7 @@ runs:
   steps:
     - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
     # Setup kubectl
-    - uses: ministryofjustice/hmpps-github-shared-actions/.github/actions/tool-installers/setup-kubectl@5a2c3da0779ed4d281f3e63c045fb7e5d295b6b1 # v1.0.9
+    - uses: ministryofjustice/hmpps-github-shared-actions/.github/actions/tool-installers/setup-kubectl@bbd86b252e05fca82a283f04a1aae251c877beee # v1.0.11
     - name: Authenticate
       shell: bash
       run: |
@@ -47,7 +47,7 @@ runs:
         kubectl config set-context ${{ inputs.cluster }} --cluster=${{ inputs.cluster }} --user=cd-serviceaccount --namespace=${{ inputs.namespace }}
         kubectl config use-context ${{ inputs.cluster }}
     # Setup helm
-    - uses: ministryofjustice/hmpps-github-shared-actions/.github/actions/tool-installers/setup-helm@5a2c3da0779ed4d281f3e63c045fb7e5d295b6b1 # v1.0.9
+    - uses: ministryofjustice/hmpps-github-shared-actions/.github/actions/tool-installers/setup-helm@bbd86b252e05fca82a283f04a1aae251c877beee # v1.0.11
     - name: Deploy
       shell: bash
       run: |
