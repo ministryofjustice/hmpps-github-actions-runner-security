@@ -7,21 +7,19 @@ echo "File location: /opt/vulnz/vulnz.jar"
 
 # Validate the cache first - sometimes they get into a bit of a pickle
 echo "Scanning /opt/vulnz/cache..."
-# Purge stale files (older than 7 days) before checking integrity
-find /opt/vulnz/cache -name "*.gz" -mtime +7 -print -delete
 for gzfile in /opt/vulnz/cache/*.gz; do
   # Skip the glob literal if the directory is empty
   [[ -e "$gzfile" ]] || continue
   # Remove zero-byte files (gzip -t passes on them but they're useless)
   if [[ ! -s "$gzfile" ]]; then
-    echo "Empty file detected, removing: $gzfile"
-    rm -f "$gzfile"
+    echo "Empty file detected - invalidating cache"
+    CACHE_BAD=YES
     continue
   fi
   # Remove files that fail gzip integrity check
   if ! gzip -t "$gzfile" 2>/dev/null; then
-    echo "Corrupt gzip file detected, removing: $gzfile"
-    rm -f "$gzfile"
+    echo "Corrupt gzip file detected, invalidating cache"
+    CACHE_BAD=YES
   fi
 done
 
@@ -35,6 +33,10 @@ key_var="NVD_API_KEY_${pod}"
 export NVD_API_KEY="${!key_var:-}"
 
 echo "NVD API KEY (NVD_API_KEY_${pod}): ${NVD_API_KEY:0:3}...${NVD_API_KEY: -3}"
+
+if [ $CACHE_BAD ] ; then
+  rm /opt/vulnz/cache/*
+fi
 java -Xmx2g -jar /opt/vulnz/vulnz.jar cve --cache --directory /opt/vulnz/cache
 
 echo "Database mirror setup initiated - now starting the runner"
