@@ -7,6 +7,7 @@ echo "File location: /opt/vulnz/vulnz.jar"
 
 # Validate the cache first - sometimes they get into a bit of a pickle
 echo "Scanning /opt/vulnz/cache..."
+CACHE_BAD=""
 for gzfile in /opt/vulnz/cache/*.gz; do
   # Skip the glob literal if the directory is empty
   [[ -e "$gzfile" ]] || continue
