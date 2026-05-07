@@ -18,6 +18,7 @@ function install_essentials() {
       locales \
       openjdk-17-jre-headless \
       curl \
+      procps \
       jq
 }
 
