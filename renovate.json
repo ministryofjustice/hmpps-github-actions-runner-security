@@ -59,9 +59,13 @@
     {
       "matchManagers": ["github-actions"],
       "versioning": "digest",
-      "matchPackageNames": [
-        "/.*/"
-      ]
+      "matchPackageNames": ["/.*/"],
+      "groupName": "github-actions",
+      "schedule": ["after 2am and before 6am on Wednesday"],
+      "stabilityDays": 0,
+      "matchUpdateTypes": ["minor", "patch"],
+      "enabled": true
     }
-  ]
+  ],
+  "platformCommit": "enabled"
 }
