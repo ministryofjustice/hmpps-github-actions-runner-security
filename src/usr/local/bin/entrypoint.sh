@@ -35,10 +35,10 @@ export NVD_API_KEY="${!key_var:-}"
 
 echo "NVD API KEY (NVD_API_KEY_${pod}): ${NVD_API_KEY:0:3}...${NVD_API_KEY: -3}"
 
-if [ $CACHE_BAD ] ; then
-  rm /opt/vulnz/cache/*
-fi
-java -Xmx2g -jar /opt/vulnz/vulnz.jar cve --cache --directory /opt/vulnz/cache
+# if [ $CACHE_BAD ] ; then
+#   rm /opt/vulnz/cache/*
+# fi
+# java -Xmx2g -jar /opt/vulnz/vulnz.jar cve --cache --directory /opt/vulnz/cache
 
 echo "Database mirror setup initiated - now starting the runner"
 
