@@ -27,7 +27,7 @@ jobs:
           curl https://github.com/jeremylong/open-vulnerability-cli/releases/download/v9.0.4/vulnz-9.0.4.jar -s -L -o vulnz.jar
           git reset --soft HEAD~1
           ls -la .
-          java -jar vulnz.jar cve --cache --directory ./nvd_cache  --requestCount=30 --debug --delay=8000 --maxRetry=40
+          java -Xmx4g  -XX:+UseStringDeduplication -jar vulnz.jar cve --cache --directory ./nvd_cache  --requestCount=30 --debug --delay=8000 --maxRetry=40
           rm vulnz.jar
           git status
           cat nvd_cache/cache.properties
