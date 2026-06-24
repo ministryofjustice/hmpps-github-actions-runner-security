@@ -44,6 +44,16 @@ echo "Database mirror setup initiated - now starting the runner"
 ACTIONS_RUNNER_DIRECTORY="/actions-runner"
 EPHEMERAL="${EPHEMERAL:-"false"}"
 
+# move the private key to a file
+SECRET_DIR=/var/run/secrets/github-app
+export GH_APP_PRIVATE_KEY_PATH="${SECRET_DIR}/github_app.pem"
+mkdir -p ${SECRET_DIR}
+printf '%s\n' "${GH_APP_PRIVATE_KEY}" > "${GH_APP_PRIVATE_KEY_PATH}"
+chmod 600 "${GH_APP_PRIVATE_KEY_PATH}"
+unset GH_APP_PRIVATE_KEY
+# Get the token 
+source /usr/local/bin/get_token.sh
+
 # Append a random suffix so each startup registers a unique name.
 # The StatefulSet hostname is stable across restarts, so without this a restarting
 # pod can collide with its own previous registration before GitHub deregisters it.
@@ -61,62 +71,9 @@ rm -f "${ACTIONS_RUNNER_DIRECTORY}/.runner" \
       "${ACTIONS_RUNNER_DIRECTORY}/.credentials" \
       "${ACTIONS_RUNNER_DIRECTORY}/.credentials_rsaparams"
 
-# ---------------------------------------------------------------------------
-# Obtain a registration token with retry logic.
-# GitHub App installation tokens expire after ~1 hour. If the pod restarts
-# long after deploy, the GH_AUTH_TOKEN will be stale and this will fail
-# permanently. Retries handle transient API/network errors only.
-# ---------------------------------------------------------------------------
-MAX_RETRIES=5
-RETRY_DELAY=10
-REPO_TOKEN=""
-
-echo "Obtaining registration token"
-for attempt in $(seq 1 "${MAX_RETRIES}"); do
-  response=$(
-    curl \
-      --silent \
-      --location \
-      --request "POST" \
-      --header "Accept: application/vnd.github+json" \
-      --header "X-GitHub-Api-Version: 2022-11-28" \
-      --header "Authorization: Bearer ${GH_AUTH_TOKEN}" \
-      "https://api.github.com/orgs/${GH_ORG}/actions/runners/registration-token"
-  ) || true
-
-  token=$(echo "${response}" | jq -r '.token // empty')
-
-  if [[ -n "${token}" ]]; then
-    echo "Registration token obtained successfully (attempt ${attempt}/${MAX_RETRIES})"
-    REPO_TOKEN="${token}"
-    break
-  fi
-
-  error_msg=$(echo "${response}" | jq -r '.message // "unknown error"')
-  echo "Failed to obtain registration token (attempt ${attempt}/${MAX_RETRIES}): ${error_msg}"
-
-  if [[ "${attempt}" -lt "${MAX_RETRIES}" ]]; then
-    sleep_time=$((RETRY_DELAY * attempt))
-    echo "Retrying in ${sleep_time}s..."
-    sleep "${sleep_time}"
-  fi
-done
-
-if [[ -z "${REPO_TOKEN}" ]]; then
-  echo "ERROR: Failed to obtain registration token after ${MAX_RETRIES} attempts."
-  echo "The GH_AUTH_TOKEN is likely expired. This pod will remain alive but NOT ready"
-  echo "until a new deployment provides a fresh token."
-  echo "Entering idle loop — waiting for pod replacement via helm upgrade..."
-
-  # Don't exit — that causes CrashLoopBackOff which blocks future helm upgrades.
-  # The readiness probe (/tmp/runner.ready) will never be satisfied, so Kubernetes
-  # won't route work to this pod. When the next helm upgrade runs, the StatefulSet
-  # controller will terminate this pod and start a fresh one with a new token.
-  trap 'echo "Received termination signal during idle wait — exiting"; exit 0' SIGINT SIGQUIT SIGTERM INT TERM QUIT
-  while true; do
-    sleep 300
-  done
-fi
+# get_token.sh already minted and exported RUNNER_REG_TOKEN via GitHub App JWT flow.
+# Use it directly — no further API call needed.
+REPO_TOKEN="${RUNNER_REG_TOKEN}"
 
 if [[ "${EPHEMERAL}" == "true" ]]; then
   EPHEMERAL_FLAG="--ephemeral"

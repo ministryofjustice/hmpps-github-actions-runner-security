@@ -58,6 +58,7 @@ RUN curl --location "https://github.com/actions/runner/releases/download/v${ACTI
     rm --force "actions-runner-linux-x64-${ACTIONS_RUNNER_VERSION}.tar.gz"
 
 COPY --chown=nobody:nobody --chmod=0755 src/usr/local/bin/entrypoint.sh /usr/local/bin/entrypoint.sh
+COPY --chown=nobody:nobody --chmod=0755 src/usr/local/bin/get_token.sh /usr/local/bin/get_token.sh
 
 USER ${CONTAINER_UID}
 
