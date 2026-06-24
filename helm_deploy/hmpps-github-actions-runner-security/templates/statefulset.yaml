@@ -18,6 +18,14 @@ spec:
       labels:
         {{- include "hmpps-github-actions-runner-security.selectorLabels" . | nindent 8 }}
     spec:
+      volumes:
+        - name: github-app-secret
+          secret:
+            secretName: hmpps-github-actions-runner-security
+            items:
+              - key: GH_APP_PRIVATE_KEY
+                path: private-key.pem
+            defaultMode: 0400  # read-only for owner
       containers:
         - name: runner
           image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}"
@@ -50,6 +58,9 @@ spec:
             - name: runners-cache
               mountPath: /opt/vulnz/cache
               subPath: cache
+            - name: github-app-secret
+              mountPath: /var/run/secrets/github-app
+              readOnly: true
           readinessProbe:
             exec:
               command: [cat, /tmp/runner.ready]

@@ -44,13 +44,15 @@ echo "Database mirror setup initiated - now starting the runner"
 ACTIONS_RUNNER_DIRECTORY="/actions-runner"
 EPHEMERAL="${EPHEMERAL:-"false"}"
 
-# move the private key to a file
-SECRET_DIR=/var/run/secrets/github-app
-export GH_APP_PRIVATE_KEY_PATH="${SECRET_DIR}/github_app.pem"
-mkdir -p ${SECRET_DIR}
-printf '%s\n' "${GH_APP_PRIVATE_KEY}" > "${GH_APP_PRIVATE_KEY_PATH}"
-chmod 600 "${GH_APP_PRIVATE_KEY_PATH}"
-unset GH_APP_PRIVATE_KEY
+# Point to the mounted private key secret
+export GH_APP_PRIVATE_KEY_PATH="/var/run/secrets/github-app/private-key.pem"
+
+if [[ ! -r "${GH_APP_PRIVATE_KEY_PATH}" ]]; then
+  echo "ERROR: Private key not readable at ${GH_APP_PRIVATE_KEY_PATH}" >&2
+  echo "Verify that the 'github-app' secret volume is mounted correctly." >&2
+  exit 1
+fi
+
 # Get the token 
 source /usr/local/bin/get_token.sh
 
