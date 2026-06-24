@@ -19,9 +19,9 @@ ENV CONTAINER_USER="runner" \
     DUMB_INIT_VERSION="1.2.2" 
 
 # Checked by renovate
-ENV ACTIONS_RUNNER_VERSION="2.333.1" \
-    GIT_LFS_VERSION="3.7.1" \
-    VULNZ_VERSION="9.0.2"
+ENV ACTIONS_RUNNER_VERSION="2.335.1" 
+ENV GIT_LFS_VERSION="3.7.1" 
+ENV VULNZ_VERSION="9.0.4"
 
 SHELL ["/bin/bash", "-e", "-u", "-o", "pipefail", "-c"]
 
