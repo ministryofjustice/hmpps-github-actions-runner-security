@@ -19,9 +19,6 @@ inputs:
   token:
     description: The KUBE_TOKEN
     required: true
-  gh_auth_token:
-    description: Auth token for Github
-    required: true
   github_org:
     description: The github org in which the runners are deployed
     required: true
@@ -53,8 +50,7 @@ runs:
       run: |
         # Delete any pods stuck in CrashLoopBackOff or that are Running but not
         # Ready (idle-sleeping on an expired token). The StatefulSet controller
-        # will recreate them with the new spec (including a fresh GH_AUTH_TOKEN)
-        # once the helm upgrade applies.
+        # will recreate them with the new spec once the helm upgrade applies.
         echo "Checking for stuck pods..."
         stuck_pods=$(
           kubectl get pods -l app.kubernetes.io/name=${{ github.event.repository.name }} -o json 2>/dev/null \
@@ -85,7 +81,6 @@ runs:
           --set 'version=${{ inputs.version }}' \
           --timeout 10m \
           --wait \
-          --set env.GH_AUTH_TOKEN="${{ inputs.gh_auth_token }}" \
           --set env.RUNNER_LABEL="${{ inputs.runner_label }}" \
           --set env.RUNNER_GROUP="${{ inputs.runner_group }}" \
           --set env.GH_ORG="${{ inputs.github_org  }}"

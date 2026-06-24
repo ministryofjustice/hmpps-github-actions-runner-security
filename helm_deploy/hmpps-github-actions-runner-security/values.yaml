@@ -12,7 +12,6 @@ image:
   pullPolicy: Always
 
 env:
-  GH_AUTH_TOKEN: ""     # GitHub PAT — set via --set at deploy time
   RUNNER_LABEL: ""     # comma-separated runner label(s) for this repo-level runner
   RUNNER_GROUP: ""      # Runner group
   GH_ORG: ""            # Organisation

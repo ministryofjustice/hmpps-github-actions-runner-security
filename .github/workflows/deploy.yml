@@ -43,15 +43,6 @@ jobs:
         with:
           environment: ${{ inputs.environment }}
 
-      - name: GitHub app installation access token generation
-        uses: actions/create-github-app-token@bcd2ba49218906704ab6c1aa796996da409d3eb1 # v3.2.0
-        id: generate-github-app-tokens
-        with:
-          client-id: ${{ vars.GH_APP_ID }}
-          repositories: ${{ github.event.repository.name }}
-          private-key: ${{ secrets.GH_APP_PRIVATE_KEY }}
-          owner: ministryofjustice
-
       - name: Deploy to Platform
         uses: ./.github/actions/cloud-platform-deploy
         with:
@@ -61,7 +52,6 @@ jobs:
           cluster: ${{ secrets.KUBE_CLUSTER }}
           namespace: ${{ secrets.KUBE_NAMESPACE }}
           token: ${{ secrets.KUBE_TOKEN }}   
-          gh_auth_token: ${{ steps.generate-github-app-tokens.outputs.token }}
           github_org: ${{ github.repository_owner }}
           runner_label: ${{ vars.RUNNER_LABEL }}
           runner_group: ${{ vars.RUNNER_GROUP }}
