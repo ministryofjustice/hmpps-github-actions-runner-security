@@ -26,7 +26,7 @@ jobs:
       push: true
       docker_registry: 'ghcr.io'
       registry_org: 'ministryofjustice'
-      additional_docker_tag: 'latest-prod'
+      additional_docker_tag: 'build-${{ github.run_id }}-${{ github.run_attempt }}'
       docker_multiplatform: false
     secrets: inherit
 
@@ -38,7 +38,7 @@ jobs:
     needs:
       - build-runner
     with:
-      version: 'latest-prod'
+      version: 'build-${{ github.run_id }}-${{ github.run_attempt }}'
       environment: 'production'
     secrets: inherit
     permissions:

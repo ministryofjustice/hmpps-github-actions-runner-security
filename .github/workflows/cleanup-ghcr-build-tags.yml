@@ -1,0 +1,107 @@
+name: Cleanup GHCR build tags
+
+on:
+  schedule:
+    - cron: "45 2 * * *" # Daily at 02:45 UTC
+  workflow_dispatch:
+    inputs:
+      keep_builds:
+        description: Number of recent build-* tags to keep
+        required: false
+        default: "60"
+      dry_run:
+        description: If true, print candidates only and do not delete
+        required: false
+        default: "true"
+
+concurrency:
+  group: cleanup-ghcr-build-tags
+  cancel-in-progress: false
+
+jobs:
+  cleanup:
+    name: Delete old GHCR build tags
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      packages: write
+    env:
+      GH_TOKEN: ${{ github.token }}
+      ORG: ${{ github.repository_owner }}
+      PACKAGE_NAME: ${{ github.event.repository.name }}
+      KEEP_BUILDS: ${{ github.event.inputs.keep_builds || '60' }}
+      DRY_RUN: ${{ github.event.inputs.dry_run || 'true' }}
+    steps:
+      - name: Resolve package versions
+        id: versions
+        shell: bash
+        run: |
+          set -euo pipefail
+
+          all_versions_json="$({
+            gh api --paginate \
+              -H "Accept: application/vnd.github+json" \
+              "/orgs/${ORG}/packages/container/${PACKAGE_NAME}/versions?per_page=100"
+          } | jq -s 'add')"
+
+          delete_ids="$({
+            jq -r --argjson keep "${KEEP_BUILDS}" '
+              [
+                .[]
+                | {
+                    id,
+                    created_at,
+                    tags: (.metadata.container.tags // [])
+                  }
+                # Safety: only delete versions that have exactly one tag and that tag
+                # matches build-*. This avoids deleting shared/stable tags.
+                | select((.tags | length) == 1 and (.tags[0] | startswith("build-")))
+              ]
+              | sort_by(.created_at)
+              | reverse
+              | .[$keep:]
+              | .[].id
+            ' <<< "${all_versions_json}"
+          } || true)"
+
+          echo "Found $(jq -r --argjson keep "${KEEP_BUILDS}" '
+            [ .[] | { tags: (.metadata.container.tags // []) }
+              | select((.tags | length) == 1 and (.tags[0] | startswith("build-")))
+            ] | length
+          ' <<< "${all_versions_json}") single-tag build-* versions in total"
+
+          if [[ -z "${delete_ids}" ]]; then
+            echo "No versions to delete after keeping ${KEEP_BUILDS}"
+            echo "has_deletes=false" >> "$GITHUB_OUTPUT"
+            exit 0
+          fi
+
+          echo "The following package version IDs are candidates for deletion:"
+          echo "${delete_ids}"
+          {
+            echo "delete_ids<<EOF"
+            echo "${delete_ids}"
+            echo "EOF"
+          } >> "$GITHUB_OUTPUT"
+          echo "has_deletes=true" >> "$GITHUB_OUTPUT"
+
+      - name: Delete old versions
+        if: steps.versions.outputs.has_deletes == 'true' && env.DRY_RUN != 'true'
+        shell: bash
+        run: |
+          set -euo pipefail
+          while IFS= read -r version_id; do
+            [[ -n "${version_id}" ]] || continue
+            echo "Deleting package version id ${version_id}"
+            gh api \
+              --method DELETE \
+              -H "Accept: application/vnd.github+json" \
+              "/orgs/${ORG}/packages/container/${PACKAGE_NAME}/versions/${version_id}"
+          done <<< "${{ steps.versions.outputs.delete_ids }}"
+
+      - name: Dry run summary
+        if: steps.versions.outputs.has_deletes == 'true' && env.DRY_RUN == 'true'
+        shell: bash
+        run: |
+          echo "DRY_RUN=true, no deletions performed."
+          echo "Set workflow_dispatch input dry_run=false to apply deletions."
