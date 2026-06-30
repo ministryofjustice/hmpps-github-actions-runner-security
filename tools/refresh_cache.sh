@@ -1,0 +1,12 @@
+java -Xmx4g  -XX:+UseStringDeduplication -jar tools/vulnz-9.0.4.jar cve \
+  --cache \
+  --directory nvd_cache \
+  --chunkDays 7 \
+  --chunkRetryCount 8 \
+  --chunkRetryDelayMs 45000 \
+  --responseTimeout 120 \
+  --recordsPerPage 250 \
+  --maxRetry 40 \
+  --requestCount 20 \
+  --debug \
+  --delay 2000 2>&1 | tee vulnz.log
