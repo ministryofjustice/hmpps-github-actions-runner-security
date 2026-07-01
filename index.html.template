@@ -1,0 +1,60 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>NVD Cache</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      margin: 40px;
+      background: #f9fafb;
+      color: #111827;
+    }
+    h1 {
+      color: #1f2937;
+    }
+    .card {
+      background: white;
+      padding: 20px;
+      border-radius: 8px;
+      box-shadow: 0 2px 6px rgba(0,0,0,0.1);
+      max-width: 800px;
+    }
+    a {
+      color: #2563eb;
+      text-decoration: none;
+      font-weight: bold;
+    }
+    a:hover {
+      text-decoration: underline;
+    }
+    .meta {
+      margin-top: 15px;
+      font-size: 0.9em;
+      color: #6b7280;
+    }
+    code {
+      background: #eef2ff;
+      padding: 2px 6px;
+      border-radius: 4px;
+    }
+  </style>
+</head>
+<body>
+  <div class="card">
+    <h1>NVD Cache</h1>
+
+    <p>
+      This repository hosts a daily-updated cache of the
+      <strong>National Vulnerability Database (NVD)</strong>.
+    </p>
+
+    <div class="meta">
+      <p><strong>Pages last generated:</strong> <code>@@LAST_GENERATED@@</code></p>
+      <p>Path for vulnerability scanners: <code>https://ministryofjustice.github.io/hmpps-github-actions-runner-security/nvd_cache/</code></p>
+    </div>
+  </div>
+
+</body>
+</html>
