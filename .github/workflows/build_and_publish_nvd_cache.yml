@@ -29,8 +29,9 @@ jobs:
           ls -la .
           java -Xmx4g -jar vulnz.jar cve --cache --directory ./nvd_cache  --requestCount=30 --debug --delay=8000 --maxRetry=40
           rm vulnz.jar
-          last_generated=$(sed -n 's/^lastModifiedDate=//p' nvd_cache/cache.properties | sed 's/\\:/:/g')
-          sed "s/@@LAST_GENERATED@@/${last_generated}/" index.html.template > index.html
+          last_generated=$(date -u +%Y-%m-%dT%H:%M:%SZ)
+          last_updated=$(sed -n 's/^lastModifiedDate=//p' nvd_cache/cache.properties | sed 's/\\:/:/g')
+          sed -e "s/@@LAST_GENERATED@@/${last_generated}/" -e "s/@@LAST_UPDATED@@/${last_updated}/" index.html.template > index.html
           git status
           cat nvd_cache/cache.properties
           git config user.email "actions@github.com"
