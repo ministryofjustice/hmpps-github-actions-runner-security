@@ -52,6 +52,7 @@
 
     <div class="meta">
       <p><strong>Pages last generated:</strong> <code>@@LAST_GENERATED@@</code></p>
+      <p><strong>Cache last updated:</strong> <code>@@LAST_UPDATED@@</code></p>
       <p>Path for vulnerability scanners: <code>https://ministryofjustice.github.io/hmpps-github-actions-runner-security/nvd_cache/</code></p>
     </div>
   </div>
